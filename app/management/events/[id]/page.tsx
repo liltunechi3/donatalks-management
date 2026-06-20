@@ -583,6 +583,18 @@ export default function EventDetailPage() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: C }}>
+      <style>{`
+        @media (max-width: 600px) {
+          .edc { padding: 20px 16px 48px !important; }
+          .etb { overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+          .etb::-webkit-scrollbar { display: none; }
+          .etn { flex-shrink: 0 !important; padding: 10px 12px !important; font-size: 0.8rem !important; }
+          .efg { grid-template-columns: 1fr !important; }
+          .emw { align-items: flex-end !important; padding: 0 !important; }
+          .emi { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; max-height: 92vh !important; }
+          .emi-sm { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; }
+        }
+      `}</style>
       {/* Navbar */}
       <header style={{ backgroundColor: G, borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", gap: 14 }}>
@@ -604,7 +616,7 @@ export default function EventDetailPage() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px 60px" }}>
+      <div className="edc" style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px 60px" }}>
 
         {/* Quick stats bar */}
         <div style={{ display: "flex", gap: 24, marginBottom: 24, flexWrap: "wrap" }}>
@@ -626,11 +638,11 @@ export default function EventDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(232,35,26,0.1)" }}>
+        <div className="etb" style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(232,35,26,0.1)" }}>
           {(["rancangan", "jobdesk", "evaluasi", "database"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} style={{
+            <button key={t} className="etn" onClick={() => setTab(t)} style={{
               padding: "10px 18px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
-              border: "none", backgroundColor: "transparent",
+              border: "none", backgroundColor: "transparent", flexShrink: 0,
               color: tab === t ? G : "rgba(232,35,26,0.4)",
               borderBottom: `2px solid ${tab === t ? G : "transparent"}`,
               whiteSpace: "nowrap",
@@ -694,7 +706,7 @@ export default function EventDetailPage() {
                   </div>
                 </div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div className="efg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div style={{ gridColumn: "1 / -1" }}>
                     <label style={lbl}>Nama Event</label>
                     <input type="text" value={ef.name || ""} onChange={(e) => setEf({ ...ef, name: e.target.value })} style={inp} />
@@ -926,7 +938,7 @@ export default function EventDetailPage() {
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Peserta</div>
                 {editingEvalSection ? (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div className="efg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                     <div>
                       <label style={lbl}>Target Peserta</label>
                       <input type="number" value={ef.target_count ?? ""} onChange={(e) => setEf({ ...ef, target_count: e.target.value ? parseInt(e.target.value) : null })} min="0" style={inp} />
@@ -1029,7 +1041,7 @@ export default function EventDetailPage() {
                     { key: "eval_good", label: "Yang Berjalan Baik", icon: "✓", color: "#059669", bg: "#f0fdf4" },
                     { key: "eval_improve", label: "Yang Perlu Diperbaiki", icon: "⚠", color: "#b45309", bg: "#fffbeb" },
                     { key: "eval_action", label: "Rencana Tindak Lanjut", icon: "→", color: "#1d4ed8", bg: "#eff6ff" },
-                    { key: "eval_feedback", label: "Feedback Peserta", icon: "💬", color: "#6b21a8", bg: "#faf5ff" },
+                    { key: "eval_feedback", label: "Feedback Peserta", icon: "★", color: "#0f766e", bg: "#f0fdfa" },
                   ].map((f) => {
                     const val = event[f.key as keyof Event] as string | null;
                     return (
@@ -1121,9 +1133,9 @@ export default function EventDetailPage() {
 
       {/* ── TEAM MODAL ── */}
       {showTeamModal && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+        <div className="emw" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowTeamModal(false); }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 360 }}>
+          <div className="emi-sm" style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 360 }}>
             <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G, marginBottom: 18 }}>Tambah Anggota Tim</h2>
             <form onSubmit={addTeamMember} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
@@ -1147,9 +1159,9 @@ export default function EventDetailPage() {
 
       {/* ── TASK MODAL (create & edit) ── */}
       {showTaskModal && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+        <div className="emw" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
           onClick={(e) => { if (e.target === e.currentTarget) { setShowTaskModal(false); setEditingTask(null); } }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+          <div className="emi" style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
             <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G, marginBottom: 18 }}>
               {editingTask ? "Edit Jobdesk" : "Tambah Jobdesk"}
             </h2>
@@ -1158,7 +1170,7 @@ export default function EventDetailPage() {
                 <label style={lbl}>Tugas *</label>
                 <input type="text" value={tf.title} onChange={(e) => setTf({ ...tf, title: e.target.value })} placeholder="cth. Buat poster feed" style={inp} required />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div className="efg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div>
                   <label style={lbl}>Divisi</label>
                   <select value={tf.category} onChange={(e) => setTf({ ...tf, category: e.target.value })} style={inp}>
@@ -1176,7 +1188,7 @@ export default function EventDetailPage() {
                   </select>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div className="efg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div>
                   <label style={lbl}>PIC</label>
                   <input type="text" value={tf.pic} onChange={(e) => setTf({ ...tf, pic: e.target.value })} placeholder="cth. Dyah" style={inp} />
@@ -1207,9 +1219,9 @@ export default function EventDetailPage() {
 
       {/* ── TEMPLATE MODAL ── */}
       {showTemplateModal && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+        <div className="emw" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowTemplateModal(false); }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 620, maxHeight: "88vh", overflowY: "auto" }}>
+          <div className="emi" style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 620, maxHeight: "88vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
               <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G }}>Template Jobdesk per Divisi</h2>
               <button onClick={() => setShowTemplateModal(false)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.4)", fontSize: "1.2rem", cursor: "pointer", lineHeight: 1 }}>×</button>
@@ -1274,9 +1286,9 @@ export default function EventDetailPage() {
 
       {/* ── EVAL MODAL ── */}
       {showEvalModal && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+        <div className="emw" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowEvalModal(false); }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+          <div className="emi" style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
             <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G, marginBottom: 20 }}>Tambah Evaluasi</h2>
             <form onSubmit={createEval} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {[
@@ -1313,9 +1325,9 @@ export default function EventDetailPage() {
 
       {/* ── LINK MODAL ── */}
       {showLinkModal && (
-        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+        <div className="emw" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
           onClick={(e) => { if (e.target === e.currentTarget) { setShowLinkModal(false); setEditingLink(null); } }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 400 }}>
+          <div className="emi-sm" style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 400 }}>
             <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G, marginBottom: 18 }}>
               {editingLink ? "Edit Link" : "Tambah Link"}
             </h2>

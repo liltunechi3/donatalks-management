@@ -195,6 +195,18 @@ export default function ManagementDashboard() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F5F0E8" }}>
+      <style>{`
+        @media (max-width: 600px) {
+          .mc { padding: 20px 16px 48px !important; }
+          .msg { gap: 10px !important; }
+          .msc { padding: 12px 10px !important; }
+          .msv { font-size: 1.3rem !important; }
+          .meg { grid-template-columns: 1fr !important; }
+          .mwrap { align-items: flex-end !important; padding: 0 !important; }
+          .mmi { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; padding: 24px 18px !important; }
+          .mfg { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {/* Navbar */}
       <header style={{ backgroundColor: "#E8231A", borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -213,7 +225,7 @@ export default function ManagementDashboard() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px 60px" }}>
+      <div className="mc" style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px 60px" }}>
         {/* Page title */}
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#E8231A", marginBottom: 4 }}>Dashboard</h1>
@@ -222,14 +234,14 @@ export default function ManagementDashboard() {
 
         {/* Stats row */}
         {!loading && !error && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
+          <div className="msg" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
             {[
               { label: "Total Event", value: events.length },
               { label: "Task Selesai", value: doneTasks },
               { label: "Task Belum Selesai", value: pendingTasks },
             ].map((stat) => (
-              <div key={stat.label} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "20px 24px" }}>
-                <div style={{ fontSize: "1.8rem", fontWeight: 700, color: "#E8231A", lineHeight: 1 }}>{stat.value}</div>
+              <div key={stat.label} className="msc" style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "20px 24px" }}>
+                <div className="msv" style={{ fontSize: "1.8rem", fontWeight: 700, color: "#E8231A", lineHeight: 1 }}>{stat.value}</div>
                 <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)", marginTop: 6 }}>{stat.label}</div>
               </div>
             ))}
@@ -265,7 +277,7 @@ export default function ManagementDashboard() {
             Belum ada event. Buat event pertama!
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+          <div className="meg" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
             {events.map((event) => {
               const statusStyle = STATUS_COLORS[event.status] || STATUS_COLORS.planned;
               const taskPct = event.task_stats.total > 0
@@ -398,10 +410,10 @@ export default function ManagementDashboard() {
       {/* Create Event Modal */}
       {showModal && (
         <div
-          style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+          className="mwrap" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
           onClick={(e) => { if (e.target === e.currentTarget) { setShowModal(false); setFormError(null); } }}
         >
-          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: "32px", width: "100%", maxWidth: 480, maxHeight: "90vh", overflowY: "auto" }}>
+          <div className="mmi" style={{ backgroundColor: "#fff", borderRadius: 12, padding: "32px", width: "100%", maxWidth: 480, maxHeight: "90vh", overflowY: "auto" }}>
             <h2 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#E8231A", marginBottom: 20 }}>Tambah Event</h2>
 
             {formError && (
@@ -422,7 +434,7 @@ export default function ManagementDashboard() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="mfg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={labelStyle}>Status</label>
                   <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} style={inputStyle}>
@@ -440,7 +452,7 @@ export default function ManagementDashboard() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="mfg" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={labelStyle}>Tanggal</label>
                   <input type="date" value={form.event_date} onChange={(e) => setForm({ ...form, event_date: e.target.value })} style={inputStyle} />
