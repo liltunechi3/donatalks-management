@@ -54,6 +54,15 @@ interface Evaluation {
   created_at: string;
 }
 
+interface EventLink {
+  id: string;
+  event_id: string;
+  label: string;
+  url: string;
+  category: string;
+  created_at: string;
+}
+
 // ── Template jobdesk per divisi ────────────────────────────────────────────────
 
 const TASK_TEMPLATES: Record<string, { title: string; notes?: string }[]> = {
@@ -184,8 +193,9 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
+  const [links, setLinks] = useState<EventLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"rancangan" | "jobdesk" | "evaluasi">("rancangan");
+  const [tab, setTab] = useState<"rancangan" | "jobdesk" | "evaluasi" | "database">("rancangan");
 
   // Rancangan edit
   const [editing, setEditing] = useState(false);
@@ -213,20 +223,28 @@ export default function EventDetailPage() {
   const [evf, setEvf] = useState({ rating_overall: 5, rating_relevance: 5, rating_delivery: 5, rating_technical: 5, comments: "", interested_next: "ya" });
   const [savingEval, setSavingEval] = useState(false);
 
+  // Link modal
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [editingLink, setEditingLink] = useState<EventLink | null>(null);
+  const [lf, setLf] = useState({ label: "", url: "", category: "lainnya" });
+  const [savingLink, setSavingLink] = useState(false);
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [evRes, taskRes, evalRes] = await Promise.all([
+      const [evRes, taskRes, evalRes, linkRes] = await Promise.all([
         fetch(`/api/management/events/${id}`),
         fetch(`/api/management/tasks?event_id=${id}`),
         fetch(`/api/management/evaluations?event_id=${id}`),
+        fetch(`/api/management/event-links?event_id=${id}`),
       ]);
       if (!evRes.ok) { router.push("/management"); return; }
-      const [evData, taskData, evalData] = await Promise.all([evRes.json(), taskRes.json(), evalRes.json()]);
+      const [evData, taskData, evalData, linkData] = await Promise.all([evRes.json(), taskRes.json(), evalRes.json(), linkRes.json()]);
       setEvent(evData);
       setEf(evData);
       setTasks(taskData);
       setEvaluations(evalData);
+      setLinks(Array.isArray(linkData) ? linkData : []);
     } finally {
       setLoading(false);
     }
@@ -461,6 +479,41 @@ export default function EventDetailPage() {
     setEvaluations((prev) => prev.filter((e) => e.id !== eid));
   }
 
+  async function submitLink(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingLink(true);
+    if (editingLink) {
+      const res = await fetch(`/api/management/event-links/${editingLink.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lf),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setLinks((prev) => prev.map((l) => l.id === editingLink.id ? updated : l));
+      }
+    } else {
+      const res = await fetch("/api/management/event-links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...lf, event_id: id }),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setLinks((prev) => [...prev, created]);
+      }
+    }
+    setLf({ label: "", url: "", category: "lainnya" });
+    setEditingLink(null);
+    setShowLinkModal(false);
+    setSavingLink(false);
+  }
+
+  async function deleteLink(lid: string) {
+    await fetch(`/api/management/event-links/${lid}`, { method: "DELETE" });
+    setLinks((prev) => prev.filter((l) => l.id !== lid));
+  }
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   if (loading) {
@@ -533,15 +586,15 @@ export default function EventDetailPage() {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(232,35,26,0.1)" }}>
-          {(["rancangan", "jobdesk", "evaluasi"] as const).map((t) => (
+          {(["rancangan", "jobdesk", "evaluasi", "database"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)} style={{
-              padding: "10px 22px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
+              padding: "10px 18px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
               border: "none", backgroundColor: "transparent",
               color: tab === t ? G : "rgba(232,35,26,0.4)",
               borderBottom: `2px solid ${tab === t ? G : "transparent"}`,
-              textTransform: "capitalize",
+              whiteSpace: "nowrap",
             }}>
-              {t === "rancangan" ? "Rancangan" : t === "jobdesk" ? `Jobdesk (${tasks.length})` : `Evaluasi (${evaluations.length})`}
+              {t === "rancangan" ? "Rancangan" : t === "jobdesk" ? `Jobdesk (${tasks.length})` : t === "evaluasi" ? `Evaluasi (${evaluations.length})` : `Database (${links.length})`}
             </button>
           ))}
         </div>
@@ -901,6 +954,74 @@ export default function EventDetailPage() {
             )}
           </div>
         )}
+
+        {/* ── DATABASE TAB ── */}
+        {tab === "database" && (
+          <div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+              <button onClick={() => { setEditingLink(null); setLf({ label: "", url: "", category: "lainnya" }); setShowLinkModal(true); }} style={btnP}>
+                + Tambah Link
+              </button>
+            </div>
+
+            {links.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "48px 0", color: "rgba(232,35,26,0.4)", fontSize: "0.88rem" }}>
+                Belum ada link. Tambahkan link Canva, GForm, dan lainnya.
+              </div>
+            ) : (
+              (() => {
+                const LINK_CATS: { value: string; label: string; color: string }[] = [
+                  { value: "design", label: "Design", color: "#dbeafe" },
+                  { value: "registrasi", label: "Registrasi", color: "#d1fae5" },
+                  { value: "evaluasi", label: "Evaluasi", color: "#fef3c7" },
+                  { value: "dokumentasi", label: "Dokumentasi", color: "#ede9fe" },
+                  { value: "lainnya", label: "Lainnya", color: "#f3f4f6" },
+                ];
+                const catMap = Object.fromEntries(LINK_CATS.map((c) => [c.value, c]));
+                const grouped = LINK_CATS.map((cat) => ({
+                  ...cat,
+                  items: links.filter((l) => l.category === cat.value),
+                })).filter((g) => g.items.length > 0);
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                    {grouped.map((group) => (
+                      <div key={group.value}>
+                        <h3 style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(232,35,26,0.5)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>
+                          {group.label}
+                        </h3>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {group.items.map((link) => (
+                            <div key={link.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: G, flexShrink: 0 }} />
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#1a1a1a", marginBottom: 2 }}>{link.label}</div>
+                                <a href={link.url} target="_blank" rel="noopener noreferrer"
+                                  style={{ fontSize: "0.75rem", color: G, textDecoration: "none", wordBreak: "break-all" }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+                                  onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+                                >
+                                  {link.url}
+                                </a>
+                              </div>
+                              <span style={{ fontSize: "0.68rem", fontWeight: 600, padding: "2px 8px", borderRadius: 4, backgroundColor: catMap[link.category]?.color || "#f3f4f6", color: "#374151", whiteSpace: "nowrap", flexShrink: 0 }}>
+                                {catMap[link.category]?.label || link.category}
+                              </span>
+                              <button onClick={() => { setEditingLink(link); setLf({ label: link.label, url: link.url, category: link.category }); setShowLinkModal(true); }}
+                                style={{ background: "none", border: "none", color: "rgba(232,35,26,0.3)", cursor: "pointer", fontSize: "0.9rem", padding: "2px 4px", flexShrink: 0 }}>✎</button>
+                              <button onClick={() => deleteLink(link.id)}
+                                style={{ background: "none", border: "none", color: "rgba(232,35,26,0.25)", cursor: "pointer", fontSize: "1.1rem", padding: "2px 4px", flexShrink: 0 }}>×</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── TEAM MODAL ── */}
@@ -1089,6 +1210,46 @@ export default function EventDetailPage() {
               <div style={{ display: "flex", gap: 8 }}>
                 <button type="button" onClick={() => setShowEvalModal(false)} style={{ ...btnS, flex: 1 }}>Batal</button>
                 <button type="submit" disabled={savingEval} style={{ ...btnP, flex: 1, opacity: savingEval ? 0.7 : 1 }}>{savingEval ? "Menyimpan..." : "Simpan"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── LINK MODAL ── */}
+      {showLinkModal && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowLinkModal(false); setEditingLink(null); } }}>
+          <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 400 }}>
+            <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G, marginBottom: 18 }}>
+              {editingLink ? "Edit Link" : "Tambah Link"}
+            </h2>
+            <form onSubmit={submitLink} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={lbl}>Label *</label>
+                <input type="text" value={lf.label} onChange={(e) => setLf({ ...lf, label: e.target.value })}
+                  placeholder="cth. Link Canva Poster, GForm Pendaftaran" style={inp} required />
+              </div>
+              <div>
+                <label style={lbl}>URL *</label>
+                <input type="url" value={lf.url} onChange={(e) => setLf({ ...lf, url: e.target.value })}
+                  placeholder="https://..." style={inp} required />
+              </div>
+              <div>
+                <label style={lbl}>Kategori</label>
+                <select value={lf.category} onChange={(e) => setLf({ ...lf, category: e.target.value })} style={inp}>
+                  <option value="design">Design (Canva, Figma)</option>
+                  <option value="registrasi">Registrasi (GForm, dll)</option>
+                  <option value="evaluasi">Evaluasi (Form Feedback)</option>
+                  <option value="dokumentasi">Dokumentasi (Drive, Foto)</option>
+                  <option value="lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <button type="button" onClick={() => { setShowLinkModal(false); setEditingLink(null); }} style={{ ...btnS, flex: 1 }}>Batal</button>
+                <button type="submit" disabled={savingLink} style={{ ...btnP, flex: 1, opacity: savingLink ? 0.7 : 1 }}>
+                  {savingLink ? "Menyimpan..." : editingLink ? "Simpan" : "Tambah"}
+                </button>
               </div>
             </form>
           </div>
