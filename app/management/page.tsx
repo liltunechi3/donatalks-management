@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -42,7 +42,7 @@ function DonutChart({ segments, total }: { segments: { value: number; color: str
   const cy = 60;
   const sw = 16;
   const circumference = 2 * Math.PI * r;
-  const arcs: React.ReactNode[] = [];
+  const arcs: ReactNode[] = [];
   let cumulative = 0;
   for (const seg of segments) {
     if (seg.value === 0) continue;
