@@ -19,10 +19,14 @@ interface Event {
   theme: string | null;
   key_points: string | null;
   target_count: number | null;
+  actual_count: number | null;
   folder_link: string | null;
   narasumber: string | null;
   mc: string | null;
   platform_link: string | null;
+  eval_good: string | null;
+  eval_improve: string | null;
+  eval_action: string | null;
   team: TeamMember[];
 }
 
@@ -222,6 +226,11 @@ export default function EventDetailPage() {
   const [showEvalModal, setShowEvalModal] = useState(false);
   const [evf, setEvf] = useState({ rating_overall: 5, rating_relevance: 5, rating_delivery: 5, rating_technical: 5, comments: "", interested_next: "ya" });
   const [savingEval, setSavingEval] = useState(false);
+
+  // Eval section edit
+  const [editingEvalSection, setEditingEvalSection] = useState(false);
+  const [evSection, setEvSection] = useState({ actual_count: "", eval_good: "", eval_improve: "", eval_action: "" });
+  const [savingEvalSection, setSavingEvalSection] = useState(false);
 
   // Link modal
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -517,6 +526,31 @@ export default function EventDetailPage() {
   async function deleteLink(lid: string) {
     await fetch(`/api/management/event-links/${lid}`, { method: "DELETE" });
     setLinks((prev) => prev.filter((l) => l.id !== lid));
+  }
+
+  async function saveEvalSection() {
+    setSavingEvalSection(true);
+    const body = {
+      actual_count: evSection.actual_count ? parseInt(evSection.actual_count) : null,
+      eval_good: evSection.eval_good || null,
+      eval_improve: evSection.eval_improve || null,
+      eval_action: evSection.eval_action || null,
+    };
+    const { team: _t, ...rest } = event as Event;
+    const res = await fetch(`/api/management/events/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...rest, ...body }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setEvent((prev) => prev ? { ...prev, ...updated } : null);
+      setEditingEvalSection(false);
+    } else {
+      const d = await res.json().catch(() => ({}));
+      alert("Gagal menyimpan: " + (d.error || "Terjadi kesalahan"));
+    }
+    setSavingEvalSection(false);
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -870,93 +904,185 @@ export default function EventDetailPage() {
 
         {/* ── EVALUASI TAB ── */}
         {tab === "evaluasi" && (
-          <div>
-            {evaluations.length > 0 && (
-              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24, marginBottom: 20 }}>
-                <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: G, marginBottom: 16 }}>Ringkasan — {evaluations.length} Responden</h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16, marginBottom: 20 }}>
-                  {[
-                    { label: "Keseluruhan", field: "rating_overall" as keyof Evaluation },
-                    { label: "Relevansi Materi", field: "rating_relevance" as keyof Evaluation },
-                    { label: "Penyampaian", field: "rating_delivery" as keyof Evaluation },
-                    { label: "Teknis Acara", field: "rating_technical" as keyof Evaluation },
-                  ].map((item) => {
-                    const a = parseFloat(avg(evaluations, item.field));
-                    return (
-                      <div key={item.label}>
-                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>{item.label}</div>
-                        <div style={{ fontSize: "1.6rem", fontWeight: 700, color: G, lineHeight: 1 }}>{isNaN(a) ? "—" : a.toFixed(1)}</div>
-                        {!isNaN(a) && (
-                          <div style={{ marginTop: 5, height: 4, backgroundColor: "#e5e7eb", borderRadius: 2 }}>
-                            <div style={{ height: "100%", width: `${(a / 5) * 100}%`, backgroundColor: a >= 4.5 ? "#059669" : a >= 3.5 ? "#f59e0b" : "#ef4444", borderRadius: 2 }} />
-                          </div>
-                        )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+            {/* KPI Pencapaian */}
+            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: G }}>KPI & Pencapaian</h3>
+                {!editingEvalSection ? (
+                  <button onClick={() => { setEvSection({ actual_count: String(event.actual_count ?? ""), eval_good: event.eval_good ?? "", eval_improve: event.eval_improve ?? "", eval_action: event.eval_action ?? "" }); setEditingEvalSection(true); }} style={btnS}>Edit</button>
+                ) : (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => setEditingEvalSection(false)} style={btnS}>Batal</button>
+                    <button onClick={saveEvalSection} disabled={savingEvalSection} style={{ ...btnP, opacity: savingEvalSection ? 0.7 : 1 }}>{savingEvalSection ? "Menyimpan..." : "Simpan"}</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Peserta target vs realisasi */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Peserta</div>
+                {editingEvalSection ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div>
+                      <label style={lbl}>Target Peserta</label>
+                      <input type="number" value={ef.target_count ?? ""} onChange={(e) => setEf({ ...ef, target_count: e.target.value ? parseInt(e.target.value) : null })} min="0" style={inp} />
+                    </div>
+                    <div>
+                      <label style={lbl}>Realisasi Peserta</label>
+                      <input type="number" value={evSection.actual_count} onChange={(e) => setEvSection({ ...evSection, actual_count: e.target.value })} min="0" style={inp} />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", gap: 32, alignItems: "flex-end", flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.4)", marginBottom: 2 }}>Target</div>
+                      <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1a1a1a", lineHeight: 1 }}>{event.target_count ?? "—"}</div>
+                    </div>
+                    <div style={{ fontSize: "1.5rem", color: "rgba(232,35,26,0.2)", paddingBottom: 4 }}>→</div>
+                    <div>
+                      <div style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.4)", marginBottom: 2 }}>Realisasi</div>
+                      <div style={{ fontSize: "2rem", fontWeight: 800, color: G, lineHeight: 1 }}>{event.actual_count ?? "—"}</div>
+                    </div>
+                    {event.target_count && event.actual_count && (
+                      <div>
+                        <div style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.4)", marginBottom: 2 }}>Pencapaian</div>
+                        <div style={{ fontSize: "2rem", fontWeight: 800, lineHeight: 1, color: event.actual_count >= event.target_count ? "#059669" : event.actual_count >= event.target_count * 0.8 ? "#b45309" : "#ef4444" }}>
+                          {Math.round((event.actual_count / event.target_count) * 100)}%
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-                <div style={{ borderTop: "1px solid rgba(232,35,26,0.08)", paddingTop: 16 }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Tertarik ikut event selanjutnya?</div>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                    )}
+                  </div>
+                )}
+                {!editingEvalSection && event.target_count && event.actual_count && (
+                  <div style={{ marginTop: 12, height: 8, backgroundColor: "#e5e7eb", borderRadius: 4 }}>
+                    <div style={{ height: "100%", width: `${Math.min((event.actual_count / event.target_count) * 100, 100)}%`, backgroundColor: event.actual_count >= event.target_count ? "#059669" : event.actual_count >= event.target_count * 0.8 ? "#f59e0b" : G, borderRadius: 4, transition: "width 0.4s" }} />
+                  </div>
+                )}
+              </div>
+
+              {/* Kepuasan dari feedback */}
+              {evaluations.length > 0 && (
+                <div style={{ borderTop: "1px solid rgba(232,35,26,0.08)", paddingTop: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 12 }}>Kepuasan Peserta — {evaluations.length} Responden</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 14, marginBottom: 14 }}>
                     {[
-                      { key: "ya", label: "Ya, sangat tertarik", color: "#059669", bg: "#d1fae5" },
+                      { label: "Keseluruhan", field: "rating_overall" as keyof Evaluation },
+                      { label: "Relevansi Materi", field: "rating_relevance" as keyof Evaluation },
+                      { label: "Penyampaian", field: "rating_delivery" as keyof Evaluation },
+                      { label: "Teknis Acara", field: "rating_technical" as keyof Evaluation },
+                    ].map((item) => {
+                      const a = parseFloat(avg(evaluations, item.field));
+                      return (
+                        <div key={item.label}>
+                          <div style={{ fontSize: "0.68rem", color: "rgba(232,35,26,0.45)", marginBottom: 2 }}>{item.label}</div>
+                          <div style={{ fontSize: "1.5rem", fontWeight: 800, color: G, lineHeight: 1 }}>{isNaN(a) ? "—" : a.toFixed(1)}<span style={{ fontSize: "0.75rem", color: "rgba(232,35,26,0.3)", fontWeight: 400 }}>/5</span></div>
+                          {!isNaN(a) && <div style={{ marginTop: 5, height: 4, backgroundColor: "#e5e7eb", borderRadius: 2 }}><div style={{ height: "100%", width: `${(a / 5) * 100}%`, backgroundColor: a >= 4.5 ? "#059669" : a >= 3.5 ? "#f59e0b" : "#ef4444", borderRadius: 2 }} /></div>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    {[
+                      { key: "ya", label: "Tertarik lagi", color: "#059669", bg: "#d1fae5" },
                       { key: "mungkin", label: "Mungkin", color: "#b45309", bg: "#fef3c7" },
-                      { key: "tidak", label: "Tidak", color: "#6b7280", bg: "#f3f4f6" },
+                      { key: "tidak", label: "Tidak tertarik", color: "#6b7280", bg: "#f3f4f6" },
                     ].map((opt) => {
                       const count = evaluations.filter((e) => e.interested_next === opt.key).length;
                       const pct = evaluations.length > 0 ? Math.round((count / evaluations.length) * 100) : 0;
                       return (
-                        <div key={opt.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ backgroundColor: opt.bg, color: opt.color, fontSize: "0.72rem", fontWeight: 700, padding: "3px 8px", borderRadius: 4 }}>{opt.label}</span>
-                          <span style={{ fontSize: "0.82rem", color: G, fontWeight: 700 }}>{count}</span>
-                          <span style={{ fontSize: "0.75rem", color: "rgba(232,35,26,0.4)" }}>({pct}%)</span>
+                        <div key={opt.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ backgroundColor: opt.bg, color: opt.color, fontSize: "0.7rem", fontWeight: 700, padding: "2px 8px", borderRadius: 4 }}>{opt.label}</span>
+                          <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1a1a1a" }}>{count}</span>
+                          <span style={{ fontSize: "0.72rem", color: "rgba(232,35,26,0.35)" }}>({pct}%)</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
-              </div>
-            )}
-
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
-              <button onClick={() => setShowEvalModal(true)} style={btnP}>+ Tambah Evaluasi</button>
+              )}
             </div>
 
-            {evaluations.length === 0 ? (
-              <div style={{ textAlign: "center", color: "rgba(232,35,26,0.35)", padding: "48px 0", fontSize: "0.9rem" }}>Belum ada data evaluasi.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {evaluations.map((e, i) => (
-                  <div key={e.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 8, padding: "14px 18px", display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: C, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, color: G, flexShrink: 0 }}>
-                      {i + 1}
+            {/* Catatan Evaluasi Tim */}
+            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+              <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 16 }}>Catatan Evaluasi Tim</div>
+              {editingEvalSection ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {[
+                    { key: "eval_good" as const, label: "✓ Yang Berjalan Baik", placeholder: "Apa yang sudah berjalan dengan baik?" },
+                    { key: "eval_improve" as const, label: "⚠ Yang Perlu Diperbaiki", placeholder: "Apa yang perlu ditingkatkan?" },
+                    { key: "eval_action" as const, label: "→ Rencana Tindak Lanjut", placeholder: "Action plan untuk event berikutnya..." },
+                  ].map((f) => (
+                    <div key={f.key}>
+                      <label style={lbl}>{f.label}</label>
+                      <textarea value={evSection[f.key]} onChange={(e) => setEvSection({ ...evSection, [f.key]: e.target.value })} rows={3} placeholder={f.placeholder} style={{ ...inp, resize: "vertical" }} />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 6 }}>
-                        {[
-                          { label: "Overall", val: e.rating_overall },
-                          { label: "Relevansi", val: e.rating_relevance },
-                          { label: "Penyampaian", val: e.rating_delivery },
-                          { label: "Teknis", val: e.rating_technical },
-                        ].map((r) => r.val != null && (
-                          <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <span style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.45)" }}>{r.label}</span>
-                            <Stars value={r.val} />
-                          </div>
-                        ))}
-                        {e.interested_next && (
-                          <span style={{ fontSize: "0.72rem", padding: "2px 8px", borderRadius: 4, backgroundColor: e.interested_next === "ya" ? "#d1fae5" : e.interested_next === "mungkin" ? "#fef3c7" : "#f3f4f6", color: e.interested_next === "ya" ? "#065f46" : e.interested_next === "mungkin" ? "#b45309" : "#6b7280", fontWeight: 600 }}>
-                            {e.interested_next === "ya" ? "Tertarik lagi" : e.interested_next === "mungkin" ? "Mungkin" : "Tidak tertarik"}
-                          </span>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+                  {[
+                    { key: "eval_good", label: "Yang Berjalan Baik", icon: "✓", color: "#059669", bg: "#f0fdf4" },
+                    { key: "eval_improve", label: "Yang Perlu Diperbaiki", icon: "⚠", color: "#b45309", bg: "#fffbeb" },
+                    { key: "eval_action", label: "Rencana Tindak Lanjut", icon: "→", color: "#1d4ed8", bg: "#eff6ff" },
+                  ].map((f) => {
+                    const val = event[f.key as keyof Event] as string | null;
+                    return (
+                      <div key={f.key} style={{ backgroundColor: f.bg, borderRadius: 8, padding: 16 }}>
+                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: f.color, marginBottom: 8 }}>{f.icon} {f.label}</div>
+                        {val ? (
+                          <p style={{ fontSize: "0.83rem", color: "#374151", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{val}</p>
+                        ) : (
+                          <p style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.25)", margin: 0, fontStyle: "italic" }}>Belum diisi</p>
                         )}
                       </div>
-                      {e.comments && <p style={{ fontSize: "0.82rem", color: "rgba(232,35,26,0.65)", lineHeight: 1.5, margin: 0 }}>{e.comments}</p>}
-                    </div>
-                    <button onClick={() => deleteEval(e.id)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.25)", cursor: "pointer", fontSize: "1rem", flexShrink: 0 }}>×</button>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Feedback individual */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Feedback Peserta ({evaluations.length})</div>
+                <button onClick={() => setShowEvalModal(true)} style={btnP}>+ Tambah Feedback</button>
               </div>
-            )}
+              {evaluations.length === 0 ? (
+                <div style={{ textAlign: "center", color: "rgba(232,35,26,0.3)", padding: "32px 0", fontSize: "0.85rem" }}>Belum ada data feedback peserta.</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {evaluations.map((e, i) => (
+                    <div key={e.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 8, padding: "14px 18px", display: "flex", gap: 14, alignItems: "flex-start" }}>
+                      <div style={{ width: 26, height: 26, borderRadius: "50%", backgroundColor: C, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, color: G, flexShrink: 0 }}>{i + 1}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
+                          {[
+                            { label: "Overall", val: e.rating_overall },
+                            { label: "Relevansi", val: e.rating_relevance },
+                            { label: "Penyampaian", val: e.rating_delivery },
+                            { label: "Teknis", val: e.rating_technical },
+                          ].map((r) => r.val != null && (
+                            <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                              <span style={{ fontSize: "0.68rem", color: "rgba(232,35,26,0.4)" }}>{r.label}</span>
+                              <Stars value={r.val} />
+                            </div>
+                          ))}
+                          {e.interested_next && (
+                            <span style={{ fontSize: "0.7rem", padding: "2px 7px", borderRadius: 4, backgroundColor: e.interested_next === "ya" ? "#d1fae5" : e.interested_next === "mungkin" ? "#fef3c7" : "#f3f4f6", color: e.interested_next === "ya" ? "#065f46" : e.interested_next === "mungkin" ? "#b45309" : "#6b7280", fontWeight: 600 }}>
+                              {e.interested_next === "ya" ? "Tertarik lagi" : e.interested_next === "mungkin" ? "Mungkin" : "Tidak tertarik"}
+                            </span>
+                          )}
+                        </div>
+                        {e.comments && <p style={{ fontSize: "0.82rem", color: "rgba(0,0,0,0.6)", lineHeight: 1.5, margin: 0 }}>{e.comments}</p>}
+                      </div>
+                      <button onClick={() => deleteEval(e.id)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.2)", cursor: "pointer", fontSize: "1rem", flexShrink: 0 }}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
