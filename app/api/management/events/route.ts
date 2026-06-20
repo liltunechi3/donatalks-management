@@ -38,12 +38,12 @@ export async function GET() {
   }
 
   const enriched = (events || [])
-    .map((e: { id: string }) => ({
+    .map((e: { id: string; status: string; created_at: string }) => ({
       ...e,
       participant_count: participantCounts[e.id] || 0,
       task_stats: taskStats[e.id] || { total: 0, done: 0 },
     }))
-    .sort((a: { status: string; created_at: string }, b: { status: string; created_at: string }) => {
+    .sort((a, b) => {
       const aDone = a.status === "done" ? 1 : 0;
       const bDone = b.status === "done" ? 1 : 0;
       if (aDone !== bDone) return aDone - bDone;
