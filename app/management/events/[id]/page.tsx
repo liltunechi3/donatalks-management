@@ -277,15 +277,20 @@ export default function EventDetailPage() {
 
   async function saveEvent() {
     setSaving(true);
+    // exclude non-column fields (team is fetched separately)
+    const { team: _team, ...eventFields } = ef as Event;
     const res = await fetch(`/api/management/events/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ef),
+      body: JSON.stringify(eventFields),
     });
     if (res.ok) {
       const updated = await res.json();
       setEvent((prev) => prev ? { ...prev, ...updated } : null);
       setEditing(false);
+    } else {
+      const d = await res.json().catch(() => ({}));
+      alert("Gagal menyimpan: " + (d.error || "Terjadi kesalahan"));
     }
     setSaving(false);
   }
