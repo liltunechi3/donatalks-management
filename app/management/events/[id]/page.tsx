@@ -1029,7 +1029,7 @@ export default function EventDetailPage() {
                     { key: "eval_good", label: "Yang Berjalan Baik", icon: "✓", color: "#059669", bg: "#f0fdf4" },
                     { key: "eval_improve", label: "Yang Perlu Diperbaiki", icon: "⚠", color: "#b45309", bg: "#fffbeb" },
                     { key: "eval_action", label: "Rencana Tindak Lanjut", icon: "→", color: "#1d4ed8", bg: "#eff6ff" },
-                    { key: "eval_feedback", label: "Feedback Peserta", icon: "💬", color: "#6b21a8", bg: "#faf5ff" },
+                    { key: "eval_feedback", label: "Feedback Peserta", icon: "★", color: "#0f766e", bg: "#f0fdfa" },
                   ].map((f) => {
                     const val = event[f.key as keyof Event] as string | null;
                     return (
