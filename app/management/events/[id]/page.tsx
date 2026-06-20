@@ -630,7 +630,7 @@ export default function EventDetailPage() {
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ backgroundColor: "#fff", borderRadius: 8, padding: "3px 8px", display: "flex", alignItems: "center", flexShrink: 0 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Dona Talks" style={{ height: 28, width: "auto", display: "block" }} />
+            <img src="/logo-feed.png" alt="Dona Talks" style={{ height: 28, width: "auto", display: "block" }} />
           </div>
           <span style={{ color: "rgba(245,240,232,0.2)" }}>|</span>
           <Link href="/management" style={{ textDecoration: "none", color: "rgba(245,240,232,0.5)", fontSize: "0.8rem" }}>← Dashboard</Link>

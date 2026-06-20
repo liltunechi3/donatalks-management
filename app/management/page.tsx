@@ -247,7 +247,7 @@ export default function ManagementDashboard() {
           <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
             <div style={{ backgroundColor: "#fff", borderRadius: 8, padding: "3px 8px", display: "flex", alignItems: "center" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Dona Talks" style={{ height: 30, width: "auto", display: "block" }} />
+              <img src="/logo-feed.png" alt="Dona Talks" style={{ height: 30, width: "auto", display: "block" }} />
             </div>
           </Link>
           <button
