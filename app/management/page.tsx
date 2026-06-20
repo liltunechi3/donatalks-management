@@ -245,10 +245,8 @@ export default function ManagementDashboard() {
       <header style={{ backgroundColor: "#E8231A", borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-            <div style={{ backgroundColor: "#fff", borderRadius: 8, padding: "3px 8px", display: "flex", alignItems: "center" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-feed.png" alt="Dona Talks" style={{ height: 30, width: "auto", display: "block" }} />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-feed.png" alt="Dona Talks" style={{ height: 36, width: "auto", display: "block" }} />
           </Link>
           <button
             onClick={async () => { await fetch("/api/management/auth", { method: "DELETE" }); window.location.href = "/management/login"; }}

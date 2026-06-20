@@ -628,10 +628,8 @@ export default function EventDetailPage() {
       {/* Navbar */}
       <header style={{ backgroundColor: G, borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: 8, padding: "3px 8px", display: "flex", alignItems: "center", flexShrink: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-feed.png" alt="Dona Talks" style={{ height: 28, width: "auto", display: "block" }} />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-feed.png" alt="Dona Talks" style={{ height: 34, width: "auto", display: "block", flexShrink: 0 }} />
           <span style={{ color: "rgba(245,240,232,0.2)" }}>|</span>
           <Link href="/management" style={{ textDecoration: "none", color: "rgba(245,240,232,0.5)", fontSize: "0.8rem" }}>← Dashboard</Link>
           <span style={{ color: "rgba(245,240,232,0.2)" }}>|</span>
