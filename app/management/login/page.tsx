@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const G = "#1E3832";
+const G = "#E8231A";
 const C = "#F5F0E8";
 
 function LoginForm() {
@@ -42,11 +42,18 @@ function LoginForm() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: C, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ marginBottom: 32, textAlign: "center" }}>
-        <div style={{ fontSize: "1.5rem", fontWeight: 800, color: G, letterSpacing: "0.04em" }}>DonaTalks</div>
-        <div style={{ fontSize: "0.78rem", color: "rgba(30,56,50,0.45)", marginTop: 4, letterSpacing: "0.08em", textTransform: "uppercase" }}>Management</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 36, height: 36, backgroundColor: G, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ color: "#fff", fontWeight: 900, fontSize: "1rem", fontStyle: "italic", letterSpacing: "-0.03em" }}>DT</span>
+          </div>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontSize: "1.25rem", fontWeight: 900, color: G, letterSpacing: "-0.02em", fontStyle: "italic", lineHeight: 1 }}>Dona Talks</div>
+            <div style={{ fontSize: "0.6rem", color: "rgba(0,0,0,0.35)", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>Management</div>
+          </div>
+        </div>
       </div>
 
-      <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 4px 24px rgba(30,56,50,0.08)" }}>
+      <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 4px 24px rgba(232,35,26,0.1)" }}>
         <h1 style={{ fontSize: "1.1rem", fontWeight: 700, color: G, marginBottom: 24 }}>Masuk</h1>
 
         {error && (
@@ -64,7 +71,7 @@ function LoginForm() {
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
               required
-              style={{ width: "100%", padding: "9px 12px", border: "1px solid rgba(30,56,50,0.22)", borderRadius: 8, fontSize: "0.9rem", color: G, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid rgba(232,35,26,0.22)", borderRadius: 8, fontSize: "0.9rem", color: G, outline: "none", boxSizing: "border-box" }}
             />
           </div>
           <div>
@@ -75,7 +82,7 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
-              style={{ width: "100%", padding: "9px 12px", border: "1px solid rgba(30,56,50,0.22)", borderRadius: 8, fontSize: "0.9rem", color: G, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid rgba(232,35,26,0.22)", borderRadius: 8, fontSize: "0.9rem", color: G, outline: "none", boxSizing: "border-box" }}
             />
           </div>
           <button

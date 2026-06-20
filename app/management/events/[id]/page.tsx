@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
-const G = "#1E3832";
+const G = "#E8231A";
 const C = "#F5F0E8";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ const TASK_TEMPLATES: Record<string, { title: string; notes?: string }[]> = {
 
 const inp: React.CSSProperties = {
   width: "100%", padding: "8px 10px",
-  border: "1px solid rgba(30,56,50,0.22)", borderRadius: 7,
+  border: "1px solid rgba(232,35,26,0.22)", borderRadius: 7,
   fontSize: "0.85rem", color: G, backgroundColor: "#fff",
   outline: "none", boxSizing: "border-box",
 };
@@ -115,7 +115,7 @@ const btnP: React.CSSProperties = {
 
 const btnS: React.CSSProperties = {
   backgroundColor: "transparent", color: G,
-  border: "1px solid rgba(30,56,50,0.28)", borderRadius: 7,
+  border: "1px solid rgba(232,35,26,0.28)", borderRadius: 7,
   padding: "8px 14px", fontSize: "0.82rem", fontWeight: 500, cursor: "pointer",
 };
 
@@ -492,6 +492,13 @@ export default function EventDetailPage() {
       {/* Navbar */}
       <header style={{ backgroundColor: G, borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, flexShrink: 0 }}>
+            <div style={{ width: 26, height: 26, backgroundColor: "#fff", borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: G, fontWeight: 900, fontSize: "0.68rem", fontStyle: "italic" }}>DT</span>
+            </div>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: "0.88rem", fontStyle: "italic", letterSpacing: "-0.01em" }}>Dona Talks</span>
+          </div>
+          <span style={{ color: "rgba(245,240,232,0.2)" }}>|</span>
           <Link href="/management" style={{ textDecoration: "none", color: "rgba(245,240,232,0.5)", fontSize: "0.8rem" }}>← Dashboard</Link>
           <span style={{ color: "rgba(245,240,232,0.2)" }}>|</span>
           <span style={{ color: C, fontWeight: 600, fontSize: "0.88rem", flex: 1 }}>{event.name}</span>
@@ -509,17 +516,17 @@ export default function EventDetailPage() {
 
         {/* Quick stats bar */}
         <div style={{ display: "flex", gap: 24, marginBottom: 24, flexWrap: "wrap" }}>
-          <div style={{ fontSize: "0.8rem", color: "rgba(30,56,50,0.5)" }}>
+          <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
             Jobdesk: <strong style={{ color: G }}>{doneTasks}/{tasks.length}</strong> selesai
-            {tasks.length > 0 && <span style={{ marginLeft: 6, color: taskPct === 100 ? "#059669" : "rgba(30,56,50,0.4)" }}>({taskPct}%)</span>}
+            {tasks.length > 0 && <span style={{ marginLeft: 6, color: taskPct === 100 ? "#059669" : "rgba(232,35,26,0.4)" }}>({taskPct}%)</span>}
           </div>
           {evaluations.length > 0 && (
-            <div style={{ fontSize: "0.8rem", color: "rgba(30,56,50,0.5)" }}>
+            <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
               Evaluasi: <strong style={{ color: G }}>{evaluations.length}</strong> responden · rata-rata <strong style={{ color: G }}>{avg(evaluations, "rating_overall")}/5</strong>
             </div>
           )}
           {event.event_date && (
-            <div style={{ fontSize: "0.8rem", color: "rgba(30,56,50,0.5)" }}>
+            <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
               {new Date(event.event_date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
               {event.event_time ? `, ${event.event_time.slice(0, 5)} WIB` : ""}
             </div>
@@ -527,12 +534,12 @@ export default function EventDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(30,56,50,0.1)" }}>
+        <div style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(232,35,26,0.1)" }}>
           {(["rancangan", "jobdesk", "evaluasi"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)} style={{
               padding: "10px 22px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
               border: "none", backgroundColor: "transparent",
-              color: tab === t ? G : "rgba(30,56,50,0.4)",
+              color: tab === t ? G : "rgba(232,35,26,0.4)",
               borderBottom: `2px solid ${tab === t ? G : "transparent"}`,
               textTransform: "capitalize",
             }}>
@@ -544,7 +551,7 @@ export default function EventDetailPage() {
         {/* ── RANCANGAN TAB ── */}
         {tab === "rancangan" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                 <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: G }}>Detail Event</h2>
                 {!editing ? (
@@ -573,19 +580,19 @@ export default function EventDetailPage() {
                     { label: "MC", val: event.mc || "—" },
                   ].map((item) => (
                     <div key={item.label}>
-                      <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
+                      <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
                       <div style={{ fontSize: "0.88rem", color: G, fontWeight: 500 }}>{item.val}</div>
                     </div>
                   ))}
                   {event.theme && (
                     <div style={{ gridColumn: "1 / -1" }}>
-                      <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>Tema</div>
+                      <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>Tema</div>
                       <div style={{ fontSize: "0.88rem", color: G }}>{event.theme}</div>
                     </div>
                   )}
                   {event.key_points && (
                     <div style={{ gridColumn: "1 / -1" }}>
-                      <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>Key Talking Points</div>
+                      <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>Key Talking Points</div>
                       <div style={{ fontSize: "0.85rem", color: G, whiteSpace: "pre-wrap", lineHeight: 1.6, backgroundColor: "#F5F0E8", padding: "12px 14px", borderRadius: 7 }}>{event.key_points}</div>
                     </div>
                   )}
@@ -656,13 +663,13 @@ export default function EventDetailPage() {
             </div>
 
             {/* Tim card */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                 <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: G }}>Tim</h2>
                 <button onClick={() => setShowTeamModal(true)} style={btnP}>+ Tambah</button>
               </div>
               {(event.team || []).length === 0 ? (
-                <p style={{ fontSize: "0.85rem", color: "rgba(30,56,50,0.35)" }}>Belum ada anggota tim.</p>
+                <p style={{ fontSize: "0.85rem", color: "rgba(232,35,26,0.35)" }}>Belum ada anggota tim.</p>
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
                   {ROLES.map((r) => {
@@ -670,11 +677,11 @@ export default function EventDetailPage() {
                     if (!members.length) return null;
                     return (
                       <div key={r.value} style={{ backgroundColor: C, borderRadius: 8, padding: "12px 14px" }}>
-                        <div style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(30,56,50,0.4)", marginBottom: 8 }}>{r.label}</div>
+                        <div style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(232,35,26,0.4)", marginBottom: 8 }}>{r.label}</div>
                         {members.map((m) => (
                           <div key={m.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                             <span style={{ fontSize: "0.85rem", color: G, fontWeight: 500 }}>{m.member_name}</span>
-                            <button onClick={() => removeTeamMember(m.id)} style={{ background: "none", border: "none", color: "rgba(30,56,50,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
+                            <button onClick={() => removeTeamMember(m.id)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
                           </div>
                         ))}
                       </div>
@@ -691,8 +698,8 @@ export default function EventDetailPage() {
           <div>
             {/* Progress */}
             {tasks.length > 0 && (
-              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 10, padding: "16px 20px", marginBottom: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "rgba(30,56,50,0.55)", marginBottom: 6 }}>
+              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "16px 20px", marginBottom: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "rgba(232,35,26,0.55)", marginBottom: 6 }}>
                   <span>Progress keseluruhan</span>
                   <span>{doneTasks}/{tasks.length} selesai ({taskPct}%)</span>
                 </div>
@@ -709,7 +716,7 @@ export default function EventDetailPage() {
             </div>
 
             {tasks.length === 0 ? (
-              <div style={{ textAlign: "center", color: "rgba(30,56,50,0.35)", padding: "48px 0", fontSize: "0.9rem" }}>
+              <div style={{ textAlign: "center", color: "rgba(232,35,26,0.35)", padding: "48px 0", fontSize: "0.9rem" }}>
                 <div style={{ marginBottom: 12 }}>Belum ada jobdesk.</div>
                 <button onClick={openTemplateModal} style={{ ...btnS, fontSize: "0.85rem" }}>Muat Template Divisi</button>
               </div>
@@ -722,10 +729,10 @@ export default function EventDetailPage() {
                   return (
                     <div key={cat}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
                           {CATEGORY_LABELS[cat]}
                         </div>
-                        <span style={{ fontSize: "0.7rem", color: "rgba(30,56,50,0.35)" }}>{catDone}/{catTasks.length}</span>
+                        <span style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.35)" }}>{catDone}/{catTasks.length}</span>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                         {catTasks.map((task) => {
@@ -734,7 +741,7 @@ export default function EventDetailPage() {
                           return (
                             <div
                               key={task.id}
-                              style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", gap: 10 }}
+                              style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", gap: 10 }}
                             >
                               {/* Status cycle */}
                               <button
@@ -742,7 +749,7 @@ export default function EventDetailPage() {
                                 title={`${st.label} — klik ganti`}
                                 style={{
                                   width: 22, height: 22, borderRadius: 6, flexShrink: 0, cursor: "pointer",
-                                  border: `2px solid ${isDone ? "#059669" : task.status === "in_progress" ? "#3b82f6" : "rgba(30,56,50,0.25)"}`,
+                                  border: `2px solid ${isDone ? "#059669" : task.status === "in_progress" ? "#3b82f6" : "rgba(232,35,26,0.25)"}`,
                                   backgroundColor: isDone ? "#059669" : task.status === "in_progress" ? "#3b82f6" : "transparent",
                                   display: "flex", alignItems: "center", justifyContent: "center",
                                 }}
@@ -759,7 +766,7 @@ export default function EventDetailPage() {
                                 <span style={{ fontSize: "0.87rem", color: G, fontWeight: 500, textDecoration: isDone ? "line-through" : "none", opacity: isDone ? 0.45 : 1 }}>
                                   {task.title}
                                 </span>
-                                {task.notes && <p style={{ fontSize: "0.73rem", color: "rgba(30,56,50,0.45)", margin: "2px 0 0" }}>{task.notes}</p>}
+                                {task.notes && <p style={{ fontSize: "0.73rem", color: "rgba(232,35,26,0.45)", margin: "2px 0 0" }}>{task.notes}</p>}
                               </div>
 
                               {/* Meta + actions */}
@@ -768,7 +775,7 @@ export default function EventDetailPage() {
                                   <span style={{ fontSize: "0.7rem", backgroundColor: C, color: G, padding: "2px 7px", borderRadius: 4, fontWeight: 600 }}>{task.pic}</span>
                                 )}
                                 {task.deadline && (
-                                  <span style={{ fontSize: "0.7rem", color: "rgba(30,56,50,0.45)" }}>
+                                  <span style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.45)" }}>
                                     {new Date(task.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
                                   </span>
                                 )}
@@ -778,19 +785,19 @@ export default function EventDetailPage() {
                                 <button
                                   onClick={() => openEditTask(task)}
                                   title="Edit"
-                                  style={{ background: "none", border: "none", color: "rgba(30,56,50,0.35)", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: "2px 3px" }}
+                                  style={{ background: "none", border: "none", color: "rgba(232,35,26,0.35)", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: "2px 3px" }}
                                 >✎</button>
                                 {/* Copy */}
                                 <button
                                   onClick={() => copyTask(task)}
                                   title="Duplikat"
-                                  style={{ background: "none", border: "none", color: "rgba(30,56,50,0.35)", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: "2px 3px" }}
+                                  style={{ background: "none", border: "none", color: "rgba(232,35,26,0.35)", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: "2px 3px" }}
                                 >⧉</button>
                                 {/* Delete */}
                                 <button
                                   onClick={() => deleteTask(task.id)}
                                   title="Hapus"
-                                  style={{ background: "none", border: "none", color: "rgba(30,56,50,0.22)", cursor: "pointer", fontSize: "1rem", lineHeight: 1, padding: "2px 3px" }}
+                                  style={{ background: "none", border: "none", color: "rgba(232,35,26,0.22)", cursor: "pointer", fontSize: "1rem", lineHeight: 1, padding: "2px 3px" }}
                                 >×</button>
                               </div>
                             </div>
@@ -809,7 +816,7 @@ export default function EventDetailPage() {
         {tab === "evaluasi" && (
           <div>
             {evaluations.length > 0 && (
-              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 10, padding: 24, marginBottom: 20 }}>
+              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24, marginBottom: 20 }}>
                 <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: G, marginBottom: 16 }}>Ringkasan — {evaluations.length} Responden</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16, marginBottom: 20 }}>
                   {[
@@ -821,7 +828,7 @@ export default function EventDetailPage() {
                     const a = parseFloat(avg(evaluations, item.field));
                     return (
                       <div key={item.label}>
-                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>{item.label}</div>
+                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>{item.label}</div>
                         <div style={{ fontSize: "1.6rem", fontWeight: 700, color: G, lineHeight: 1 }}>{isNaN(a) ? "—" : a.toFixed(1)}</div>
                         {!isNaN(a) && (
                           <div style={{ marginTop: 5, height: 4, backgroundColor: "#e5e7eb", borderRadius: 2 }}>
@@ -832,8 +839,8 @@ export default function EventDetailPage() {
                     );
                   })}
                 </div>
-                <div style={{ borderTop: "1px solid rgba(30,56,50,0.08)", paddingTop: 16 }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Tertarik ikut event selanjutnya?</div>
+                <div style={{ borderTop: "1px solid rgba(232,35,26,0.08)", paddingTop: 16 }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Tertarik ikut event selanjutnya?</div>
                   <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                     {[
                       { key: "ya", label: "Ya, sangat tertarik", color: "#059669", bg: "#d1fae5" },
@@ -846,7 +853,7 @@ export default function EventDetailPage() {
                         <div key={opt.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ backgroundColor: opt.bg, color: opt.color, fontSize: "0.72rem", fontWeight: 700, padding: "3px 8px", borderRadius: 4 }}>{opt.label}</span>
                           <span style={{ fontSize: "0.82rem", color: G, fontWeight: 700 }}>{count}</span>
-                          <span style={{ fontSize: "0.75rem", color: "rgba(30,56,50,0.4)" }}>({pct}%)</span>
+                          <span style={{ fontSize: "0.75rem", color: "rgba(232,35,26,0.4)" }}>({pct}%)</span>
                         </div>
                       );
                     })}
@@ -860,11 +867,11 @@ export default function EventDetailPage() {
             </div>
 
             {evaluations.length === 0 ? (
-              <div style={{ textAlign: "center", color: "rgba(30,56,50,0.35)", padding: "48px 0", fontSize: "0.9rem" }}>Belum ada data evaluasi.</div>
+              <div style={{ textAlign: "center", color: "rgba(232,35,26,0.35)", padding: "48px 0", fontSize: "0.9rem" }}>Belum ada data evaluasi.</div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {evaluations.map((e, i) => (
-                  <div key={e.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 8, padding: "14px 18px", display: "flex", gap: 16, alignItems: "flex-start" }}>
+                  <div key={e.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 8, padding: "14px 18px", display: "flex", gap: 16, alignItems: "flex-start" }}>
                     <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: C, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, color: G, flexShrink: 0 }}>
                       {i + 1}
                     </div>
@@ -877,7 +884,7 @@ export default function EventDetailPage() {
                           { label: "Teknis", val: e.rating_technical },
                         ].map((r) => r.val != null && (
                           <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <span style={{ fontSize: "0.7rem", color: "rgba(30,56,50,0.45)" }}>{r.label}</span>
+                            <span style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.45)" }}>{r.label}</span>
                             <Stars value={r.val} />
                           </div>
                         ))}
@@ -887,9 +894,9 @@ export default function EventDetailPage() {
                           </span>
                         )}
                       </div>
-                      {e.comments && <p style={{ fontSize: "0.82rem", color: "rgba(30,56,50,0.65)", lineHeight: 1.5, margin: 0 }}>{e.comments}</p>}
+                      {e.comments && <p style={{ fontSize: "0.82rem", color: "rgba(232,35,26,0.65)", lineHeight: 1.5, margin: 0 }}>{e.comments}</p>}
                     </div>
-                    <button onClick={() => deleteEval(e.id)} style={{ background: "none", border: "none", color: "rgba(30,56,50,0.25)", cursor: "pointer", fontSize: "1rem", flexShrink: 0 }}>×</button>
+                    <button onClick={() => deleteEval(e.id)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.25)", cursor: "pointer", fontSize: "1rem", flexShrink: 0 }}>×</button>
                   </div>
                 ))}
               </div>
@@ -991,9 +998,9 @@ export default function EventDetailPage() {
           <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: 28, width: "100%", maxWidth: 620, maxHeight: "88vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
               <h2 style={{ fontSize: "1rem", fontWeight: 700, color: G }}>Template Jobdesk per Divisi</h2>
-              <button onClick={() => setShowTemplateModal(false)} style={{ background: "none", border: "none", color: "rgba(30,56,50,0.4)", fontSize: "1.2rem", cursor: "pointer", lineHeight: 1 }}>×</button>
+              <button onClick={() => setShowTemplateModal(false)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.4)", fontSize: "1.2rem", cursor: "pointer", lineHeight: 1 }}>×</button>
             </div>
-            <p style={{ fontSize: "0.78rem", color: "rgba(30,56,50,0.45)", marginBottom: 20 }}>
+            <p style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.45)", marginBottom: 20 }}>
               Centang jobdesk yang ingin ditambahkan. Yang sudah ada di list tidak dicentang otomatis.
             </p>
 
@@ -1011,7 +1018,7 @@ export default function EventDetailPage() {
 
             {TASK_CATEGORIES.map((cat) => (
               <div key={cat} style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(30,56,50,0.4)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
+                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
                   {CATEGORY_LABELS[cat]}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -1028,7 +1035,7 @@ export default function EventDetailPage() {
                         />
                         <div>
                           <div style={{ fontSize: "0.85rem", color: G, fontWeight: 500 }}>{item.title}</div>
-                          {item.notes && <div style={{ fontSize: "0.72rem", color: "rgba(30,56,50,0.45)", marginTop: 1 }}>{item.notes}</div>}
+                          {item.notes && <div style={{ fontSize: "0.72rem", color: "rgba(232,35,26,0.45)", marginTop: 1 }}>{item.notes}</div>}
                         </div>
                       </label>
                     );
@@ -1037,7 +1044,7 @@ export default function EventDetailPage() {
               </div>
             ))}
 
-            <div style={{ display: "flex", gap: 10, marginTop: 4, position: "sticky", bottom: 0, backgroundColor: "#fff", paddingTop: 12, borderTop: "1px solid rgba(30,56,50,0.08)" }}>
+            <div style={{ display: "flex", gap: 10, marginTop: 4, position: "sticky", bottom: 0, backgroundColor: "#fff", paddingTop: 12, borderTop: "1px solid rgba(232,35,26,0.08)" }}>
               <button onClick={() => setShowTemplateModal(false)} style={{ ...btnS, flex: 1 }}>Batal</button>
               <button
                 onClick={loadTemplates}

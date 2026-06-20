@@ -40,7 +40,7 @@ function Spinner({ small }: { small?: boolean }) {
   const size = small ? 18 : 28;
   return (
     <svg
-      style={{ animation: "spin 1s linear infinite", height: size, width: size, display: "block", color: "#1E3832" }}
+      style={{ animation: "spin 1s linear infinite", height: size, width: size, display: "block", color: "#E8231A" }}
       viewBox="0 0 24 24"
       fill="none"
     >
@@ -196,10 +196,13 @@ export default function ManagementDashboard() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F5F0E8" }}>
       {/* Navbar */}
-      <header style={{ backgroundColor: "#1E3832", borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
+      <header style={{ backgroundColor: "#E8231A", borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <span style={{ color: "#F5F0E8", fontWeight: 700, fontSize: "1rem", letterSpacing: "0.04em" }}>DonaTalks</span>
+          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, backgroundColor: "#fff", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ color: "#E8231A", fontWeight: 900, fontSize: "0.75rem", fontStyle: "italic" }}>DT</span>
+            </div>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: "0.95rem", fontStyle: "italic", letterSpacing: "-0.01em" }}>Dona Talks</span>
           </Link>
           <button
             onClick={async () => { await fetch("/api/management/auth", { method: "DELETE" }); window.location.href = "/management/login"; }}
@@ -213,8 +216,8 @@ export default function ManagementDashboard() {
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px 60px" }}>
         {/* Page title */}
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#1E3832", marginBottom: 4 }}>Dashboard</h1>
-          <p style={{ fontSize: "0.85rem", color: "rgba(30,56,50,0.5)" }}>Kelola semua event DonaTalks</p>
+          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#E8231A", marginBottom: 4 }}>Dashboard</h1>
+          <p style={{ fontSize: "0.85rem", color: "rgba(232,35,26,0.5)" }}>Kelola semua event DonaTalks</p>
         </div>
 
         {/* Stats row */}
@@ -225,9 +228,9 @@ export default function ManagementDashboard() {
               { label: "Task Selesai", value: doneTasks },
               { label: "Task Belum Selesai", value: pendingTasks },
             ].map((stat) => (
-              <div key={stat.label} style={{ backgroundColor: "#fff", border: "1px solid rgba(30,56,50,0.1)", borderRadius: 10, padding: "20px 24px" }}>
-                <div style={{ fontSize: "1.8rem", fontWeight: 700, color: "#1E3832", lineHeight: 1 }}>{stat.value}</div>
-                <div style={{ fontSize: "0.8rem", color: "rgba(30,56,50,0.5)", marginTop: 6 }}>{stat.label}</div>
+              <div key={stat.label} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "20px 24px" }}>
+                <div style={{ fontSize: "1.8rem", fontWeight: 700, color: "#E8231A", lineHeight: 1 }}>{stat.value}</div>
+                <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)", marginTop: 6 }}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -236,12 +239,12 @@ export default function ManagementDashboard() {
         {/* Events header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#1E3832" }}>Event</h2>
-            <p style={{ fontSize: "0.75rem", color: "rgba(30,56,50,0.4)", marginTop: 2 }}>Tahan kartu untuk hapus atau duplikat</p>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#E8231A" }}>Event</h2>
+            <p style={{ fontSize: "0.75rem", color: "rgba(232,35,26,0.4)", marginTop: 2 }}>Tahan kartu untuk hapus atau duplikat</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            style={{ backgroundColor: "#1E3832", color: "#F5F0E8", border: "none", borderRadius: 7, padding: "8px 16px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
+            style={{ backgroundColor: "#E8231A", color: "#F5F0E8", border: "none", borderRadius: 7, padding: "8px 16px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
           >
             + Tambah Event
           </button>
@@ -258,7 +261,7 @@ export default function ManagementDashboard() {
             <button onClick={fetchEvents} style={{ marginLeft: 12, textDecoration: "underline", background: "none", border: "none", color: "#991b1b", cursor: "pointer" }}>Coba lagi</button>
           </div>
         ) : events.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "rgba(30,56,50,0.4)", fontSize: "0.9rem" }}>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "rgba(232,35,26,0.4)", fontSize: "0.9rem" }}>
             Belum ada event. Buat event pertama!
           </div>
         ) : (
@@ -282,7 +285,7 @@ export default function ManagementDashboard() {
                   onContextMenu={(e) => { e.preventDefault(); setActionEvent(event); }}
                   style={{
                     backgroundColor: "#fff",
-                    border: `1px solid ${isPressed ? "rgba(30,56,50,0.4)" : "rgba(30,56,50,0.1)"}`,
+                    border: `1px solid ${isPressed ? "rgba(232,35,26,0.4)" : "rgba(232,35,26,0.1)"}`,
                     borderRadius: 10,
                     padding: "20px",
                     cursor: "pointer",
@@ -292,46 +295,46 @@ export default function ManagementDashboard() {
                     userSelect: "none",
                     WebkitUserSelect: "none",
                   }}
-                  onMouseEnter={(e) => { if (!isPressed) e.currentTarget.style.boxShadow = "0 4px 16px rgba(30,56,50,0.1)"; }}
+                  onMouseEnter={(e) => { if (!isPressed) e.currentTarget.style.boxShadow = "0 4px 16px rgba(232,35,26,0.1)"; }}
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                    <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#1E3832", flex: 1, marginRight: 10 }}>{event.name}</h3>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#E8231A", flex: 1, marginRight: 10 }}>{event.name}</h3>
                     <span style={{ ...statusStyle, fontSize: "0.72rem", fontWeight: 600, padding: "3px 8px", borderRadius: 5, whiteSpace: "nowrap" }}>
                       {STATUS_LABELS[event.status] || event.status}
                     </span>
                   </div>
 
                   {event.theme && (
-                    <p style={{ fontSize: "0.8rem", color: "rgba(30,56,50,0.55)", marginBottom: 8, fontStyle: "italic" }}>
+                    <p style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.55)", marginBottom: 8, fontStyle: "italic" }}>
                       {event.theme}
                     </p>
                   )}
 
                   <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
                     {event.event_date && (
-                      <span style={{ fontSize: "0.78rem", color: "rgba(30,56,50,0.6)" }}>
+                      <span style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.6)" }}>
                         {new Date(event.event_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                     )}
-                    <span style={{ fontSize: "0.78rem", color: "rgba(30,56,50,0.6)", textTransform: "capitalize" }}>
+                    <span style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.6)", textTransform: "capitalize" }}>
                       {event.format}
                     </span>
                   </div>
 
                   {/* Task progress */}
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "rgba(30,56,50,0.5)", marginBottom: 4 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "rgba(232,35,26,0.5)", marginBottom: 4 }}>
                       <span>Tasks</span>
                       <span>{event.task_stats.done}/{event.task_stats.total} selesai</span>
                     </div>
                     <div style={{ height: 5, backgroundColor: "#e5e7eb", borderRadius: 3 }}>
-                      <div style={{ height: "100%", width: `${taskPct}%`, backgroundColor: "#1E3832", borderRadius: 3, transition: "width 0.3s" }} />
+                      <div style={{ height: "100%", width: `${taskPct}%`, backgroundColor: "#E8231A", borderRadius: 3, transition: "width 0.3s" }} />
                     </div>
                   </div>
 
                   {event.target_count && (
-                    <div style={{ fontSize: "0.78rem", color: "rgba(30,56,50,0.5)" }}>
-                      Target: <strong style={{ color: "#1E3832" }}>{event.target_count}</strong> peserta
+                    <div style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.5)" }}>
+                      Target: <strong style={{ color: "#E8231A" }}>{event.target_count}</strong> peserta
                     </div>
                   )}
                 </div>
@@ -351,9 +354,9 @@ export default function ManagementDashboard() {
             style={{ backgroundColor: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 480, padding: "20px 20px 32px", boxShadow: "0 -4px 24px rgba(0,0,0,0.15)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ width: 36, height: 4, backgroundColor: "rgba(30,56,50,0.15)", borderRadius: 2, margin: "0 auto 20px" }} />
-            <p style={{ fontSize: "0.78rem", color: "rgba(30,56,50,0.45)", marginBottom: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>Event</p>
-            <p style={{ fontSize: "1rem", fontWeight: 700, color: "#1E3832", marginBottom: 20 }}>{actionEvent.name}</p>
+            <div style={{ width: 36, height: 4, backgroundColor: "rgba(232,35,26,0.15)", borderRadius: 2, margin: "0 auto 20px" }} />
+            <p style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.45)", marginBottom: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>Event</p>
+            <p style={{ fontSize: "1rem", fontWeight: 700, color: "#E8231A", marginBottom: 20 }}>{actionEvent.name}</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <button
@@ -362,7 +365,7 @@ export default function ManagementDashboard() {
                 style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", backgroundColor: "#F5F0E8", border: "none", borderRadius: 10, cursor: duplicating ? "not-allowed" : "pointer", opacity: duplicating ? 0.6 : 1 }}
               >
                 <span style={{ fontSize: "1.2rem" }}>⧉</span>
-                <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#1E3832" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#E8231A" }}>
                   {duplicating ? "Menduplikat..." : "Duplikat Event"}
                 </span>
                 {duplicating && <span style={{ marginLeft: "auto" }}><Spinner small /></span>}
@@ -383,7 +386,7 @@ export default function ManagementDashboard() {
               <button
                 onClick={() => setActionEvent(null)}
                 disabled={duplicating || deleting}
-                style={{ padding: "13px 16px", backgroundColor: "transparent", border: "1px solid rgba(30,56,50,0.2)", borderRadius: 10, cursor: "pointer", fontSize: "0.9rem", color: "rgba(30,56,50,0.6)", fontWeight: 500 }}
+                style={{ padding: "13px 16px", backgroundColor: "transparent", border: "1px solid rgba(232,35,26,0.2)", borderRadius: 10, cursor: "pointer", fontSize: "0.9rem", color: "rgba(232,35,26,0.6)", fontWeight: 500 }}
               >
                 Batal
               </button>
@@ -399,7 +402,7 @@ export default function ManagementDashboard() {
           onClick={(e) => { if (e.target === e.currentTarget) { setShowModal(false); setFormError(null); } }}
         >
           <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: "32px", width: "100%", maxWidth: 480, maxHeight: "90vh", overflowY: "auto" }}>
-            <h2 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#1E3832", marginBottom: 20 }}>Tambah Event</h2>
+            <h2 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#E8231A", marginBottom: 20 }}>Tambah Event</h2>
 
             {formError && (
               <div style={{ backgroundColor: "#fee2e2", color: "#991b1b", padding: "10px 14px", borderRadius: 7, fontSize: "0.83rem", marginBottom: 16 }}>
@@ -486,14 +489,14 @@ export default function ManagementDashboard() {
                 <button
                   type="button"
                   onClick={() => { setShowModal(false); setFormError(null); }}
-                  style={{ flex: 1, padding: "10px", border: "1px solid rgba(30,56,50,0.3)", borderRadius: 7, backgroundColor: "transparent", color: "#1E3832", fontSize: "0.88rem", cursor: "pointer", fontWeight: 500 }}
+                  style={{ flex: 1, padding: "10px", border: "1px solid rgba(232,35,26,0.3)", borderRadius: 7, backgroundColor: "transparent", color: "#E8231A", fontSize: "0.88rem", cursor: "pointer", fontWeight: 500 }}
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  style={{ flex: 1, padding: "10px", border: "none", borderRadius: 7, backgroundColor: "#1E3832", color: "#F5F0E8", fontSize: "0.88rem", cursor: creating ? "not-allowed" : "pointer", fontWeight: 600, opacity: creating ? 0.7 : 1 }}
+                  style={{ flex: 1, padding: "10px", border: "none", borderRadius: 7, backgroundColor: "#E8231A", color: "#F5F0E8", fontSize: "0.88rem", cursor: creating ? "not-allowed" : "pointer", fontWeight: 600, opacity: creating ? 0.7 : 1 }}
                 >
                   {creating ? "Membuat..." : "Buat Event"}
                 </button>
@@ -510,17 +513,17 @@ const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: "0.78rem",
   fontWeight: 600,
-  color: "#1E3832",
+  color: "#E8231A",
   marginBottom: 5,
 };
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "8px 10px",
-  border: "1px solid rgba(30,56,50,0.25)",
+  border: "1px solid rgba(232,35,26,0.25)",
   borderRadius: 7,
   fontSize: "0.88rem",
-  color: "#1E3832",
+  color: "#E8231A",
   backgroundColor: "#fff",
   outline: "none",
   boxSizing: "border-box",
