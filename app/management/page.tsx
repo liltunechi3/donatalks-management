@@ -272,16 +272,16 @@ export default function ManagementDashboard() {
             <DonutChart
               total={events.length}
               segments={[
-                { value: plannedCount, color: "#d1d5db", label: "Planned" },
-                { value: onProgressCount, color: "#fbbf24", label: "On Progress" },
-                { value: doneCount, color: "#34d399", label: "Done" },
+                { value: plannedCount, color: "#e5e7eb", label: "Planned" },
+                { value: onProgressCount, color: "#1a1a1a", label: "On Progress" },
+                { value: doneCount, color: "#E8231A", label: "Done" },
               ]}
             />
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { label: "Planned", value: plannedCount, dot: "#d1d5db", textColor: "#6b7280" },
-                { label: "On Progress", value: onProgressCount, dot: "#fbbf24", textColor: "#b45309" },
-                { label: "Done", value: doneCount, dot: "#34d399", textColor: "#065f46" },
+                { label: "Planned", value: plannedCount, dot: "#e5e7eb", textColor: "#6b7280" },
+                { label: "On Progress", value: onProgressCount, dot: "#1a1a1a", textColor: "#1a1a1a" },
+                { label: "Done", value: doneCount, dot: "#E8231A", textColor: "#E8231A" },
               ].map((item) => (
                 <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: item.dot, flexShrink: 0 }} />
