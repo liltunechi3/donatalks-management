@@ -42,15 +42,9 @@ function LoginForm() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: C, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ marginBottom: 32, textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 6 }}>
-          <div style={{ width: 36, height: 36, backgroundColor: G, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "#fff", fontWeight: 900, fontSize: "1rem", fontStyle: "italic", letterSpacing: "-0.03em" }}>DT</span>
-          </div>
-          <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: "1.25rem", fontWeight: 900, color: G, letterSpacing: "-0.02em", fontStyle: "italic", lineHeight: 1 }}>Dona Talks</div>
-            <div style={{ fontSize: "0.6rem", color: "rgba(0,0,0,0.35)", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 2 }}>Management</div>
-          </div>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="Dona Talks" style={{ height: 60, width: "auto", display: "block", margin: "0 auto 8px" }} />
+        <div style={{ fontSize: "0.65rem", color: "rgba(0,0,0,0.35)", letterSpacing: "0.12em", textTransform: "uppercase" }}>Management</div>
       </div>
 
       <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 4px 24px rgba(232,35,26,0.1)" }}>
