@@ -585,10 +585,10 @@ export default function EventDetailPage() {
     <div style={{ minHeight: "100vh", backgroundColor: C }}>
       <style>{`
         @media (max-width: 600px) {
-          .edc { padding: 20px 16px 48px !important; }
+          .edc { padding: 16px 14px 48px !important; }
           .etb { overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
           .etb::-webkit-scrollbar { display: none; }
-          .etn { flex-shrink: 0 !important; padding: 10px 12px !important; font-size: 0.8rem !important; }
+          .etn { flex-shrink: 0 !important; padding: 7px 12px !important; font-size: 0.78rem !important; }
           .efg { grid-template-columns: 1fr !important; }
           .emw { align-items: flex-end !important; padding: 0 !important; }
           .emi { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; max-height: 92vh !important; }
@@ -619,32 +619,33 @@ export default function EventDetailPage() {
       <div className="edc" style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px 60px" }}>
 
         {/* Quick stats bar */}
-        <div style={{ display: "flex", gap: 24, marginBottom: 24, flexWrap: "wrap" }}>
-          <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
-            Jobdesk: <strong style={{ color: G }}>{doneTasks}/{tasks.length}</strong> selesai
-            {tasks.length > 0 && <span style={{ marginLeft: 6, color: taskPct === 100 ? "#059669" : "rgba(232,35,26,0.4)" }}>({taskPct}%)</span>}
+        <div style={{ display: "flex", gap: 20, marginBottom: 20, flexWrap: "wrap", backgroundColor: "#fff", borderRadius: 12, padding: "14px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04)", alignItems: "center" }}>
+          <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
+            Jobdesk: <strong style={{ color: G }}>{doneTasks}/{tasks.length}</strong>
+            {tasks.length > 0 && <span style={{ marginLeft: 5, color: taskPct === 100 ? "#059669" : "#9ca3af" }}>({taskPct}%)</span>}
           </div>
           {evaluations.length > 0 && (
-            <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
-              Evaluasi: <strong style={{ color: G }}>{evaluations.length}</strong> responden · rata-rata <strong style={{ color: G }}>{avg(evaluations, "rating_overall")}/5</strong>
+            <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
+              Evaluasi: <strong style={{ color: G }}>{evaluations.length}</strong> responden · <strong style={{ color: G }}>{avg(evaluations, "rating_overall")}/5</strong>
             </div>
           )}
           {event.event_date && (
-            <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
-              {new Date(event.event_date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-              {event.event_time ? `, ${event.event_time.slice(0, 5)} WIB` : ""}
+            <div style={{ fontSize: "0.8rem", color: "#9ca3af", marginLeft: "auto" }}>
+              📅 {new Date(event.event_date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+              {event.event_time ? ` · ${event.event_time.slice(0, 5)} WIB` : ""}
             </div>
           )}
         </div>
 
         {/* Tabs */}
-        <div className="etb" style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(232,35,26,0.1)" }}>
+        <div className="etb" style={{ display: "flex", gap: 4, marginBottom: 24, backgroundColor: "rgba(232,35,26,0.06)", borderRadius: 12, padding: "4px" }}>
           {(["rancangan", "jobdesk", "evaluasi", "database"] as const).map((t) => (
             <button key={t} className="etn" onClick={() => setTab(t)} style={{
-              padding: "10px 18px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
-              border: "none", backgroundColor: "transparent", flexShrink: 0,
-              color: tab === t ? G : "rgba(232,35,26,0.4)",
-              borderBottom: `2px solid ${tab === t ? G : "transparent"}`,
+              padding: "8px 16px", fontSize: "0.83rem", fontWeight: 600, cursor: "pointer",
+              border: "none", flexShrink: 0, borderRadius: 9, transition: "all 0.15s",
+              backgroundColor: tab === t ? "#fff" : "transparent",
+              color: tab === t ? G : "#9ca3af",
+              boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
               whiteSpace: "nowrap",
             }}>
               {t === "rancangan" ? "Rancangan" : t === "jobdesk" ? `Jobdesk (${tasks.length})` : t === "evaluasi" ? `Evaluasi (${evaluations.length})` : `Database (${links.length})`}
@@ -655,9 +656,9 @@ export default function EventDetailPage() {
         {/* ── RANCANGAN TAB ── */}
         {tab === "rancangan" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: G }}>Detail Event</h2>
+                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a" }}>Detail Event</h2>
                 {!editing ? (
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => setEditing(true)} style={btnS}>Edit</button>
@@ -685,7 +686,7 @@ export default function EventDetailPage() {
                   ].map((item) => (
                     <div key={item.label}>
                       <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
-                      <div style={{ fontSize: "0.88rem", color: G, fontWeight: 500 }}>{item.val}</div>
+                      <div style={{ fontSize: "0.88rem", color: "#1a1a1a", fontWeight: 500 }}>{item.val}</div>
                     </div>
                   ))}
                   {event.theme && (
@@ -767,9 +768,9 @@ export default function EventDetailPage() {
             </div>
 
             {/* Tim card */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: G }}>Tim</h2>
+                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a" }}>Tim</h2>
                 <button onClick={() => setShowTeamModal(true)} style={btnP}>+ Tambah</button>
               </div>
               {(event.team || []).length === 0 ? (
@@ -802,7 +803,7 @@ export default function EventDetailPage() {
           <div>
             {/* Progress */}
             {tasks.length > 0 && (
-              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "16px 20px", marginBottom: 20 }}>
+              <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "rgba(232,35,26,0.55)", marginBottom: 6 }}>
                   <span>Progress keseluruhan</span>
                   <span>{doneTasks}/{tasks.length} selesai ({taskPct}%)</span>
@@ -845,7 +846,7 @@ export default function EventDetailPage() {
                           return (
                             <div
                               key={task.id}
-                              style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", gap: 10 }}
+                              style={{ backgroundColor: "#fff", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 1px 2px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.04)" }}
                             >
                               {/* Status cycle */}
                               <button
@@ -867,7 +868,7 @@ export default function EventDetailPage() {
 
                               {/* Title + notes */}
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <span style={{ fontSize: "0.87rem", color: G, fontWeight: 500, textDecoration: isDone ? "line-through" : "none", opacity: isDone ? 0.45 : 1 }}>
+                                <span style={{ fontSize: "0.87rem", color: isDone ? "#9ca3af" : "#1a1a1a", fontWeight: 500, textDecoration: isDone ? "line-through" : "none" }}>
                                   {task.title}
                                 </span>
                                 {task.notes && <p style={{ fontSize: "0.73rem", color: "rgba(232,35,26,0.45)", margin: "2px 0 0" }}>{task.notes}</p>}
@@ -921,9 +922,9 @@ export default function EventDetailPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* KPI Pencapaian */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: G }}>KPI & Pencapaian</h3>
+                <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1a1a1a" }}>KPI & Pencapaian</h3>
                 {!editingEvalSection ? (
                   <button onClick={() => { setEvSection({ actual_count: String(event.actual_count ?? ""), eval_good: event.eval_good ?? "", eval_improve: event.eval_improve ?? "", eval_action: event.eval_action ?? "", eval_feedback: event.eval_feedback ?? "" }); setEditingEvalSection(true); }} style={btnS}>Edit</button>
                 ) : (
@@ -1019,7 +1020,7 @@ export default function EventDetailPage() {
             </div>
 
             {/* Catatan Evaluasi Tim */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 16 }}>Catatan Evaluasi Tim</div>
               {editingEvalSection ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -1099,7 +1100,7 @@ export default function EventDetailPage() {
                         </h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                           {group.items.map((link) => (
-                            <div key={link.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                            <div key={link.id} style={{ backgroundColor: "#fff", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)" }}>
                               <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: G, flexShrink: 0 }} />
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#1a1a1a", marginBottom: 2 }}>{link.label}</div>

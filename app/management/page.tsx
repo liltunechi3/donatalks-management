@@ -199,13 +199,14 @@ export default function ManagementDashboard() {
         @media (max-width: 600px) {
           .mc { padding: 20px 16px 48px !important; }
           .msg { gap: 10px !important; }
-          .msc { padding: 12px 10px !important; }
-          .msv { font-size: 1.3rem !important; }
+          .msc { padding: 14px 14px !important; }
+          .msv { font-size: 1.5rem !important; }
           .meg { grid-template-columns: 1fr !important; }
           .mwrap { align-items: flex-end !important; padding: 0 !important; }
           .mmi { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; padding: 24px 18px !important; }
           .mfg { grid-template-columns: 1fr !important; }
         }
+        .ev-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.11), 0 0 1px rgba(0,0,0,0.05) !important; }
       `}</style>
       {/* Navbar */}
       <header style={{ backgroundColor: "#E8231A", borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
@@ -228,8 +229,8 @@ export default function ManagementDashboard() {
       <div className="mc" style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px 60px" }}>
         {/* Page title */}
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#E8231A", marginBottom: 4 }}>Dashboard</h1>
-          <p style={{ fontSize: "0.85rem", color: "rgba(232,35,26,0.5)" }}>Kelola semua event DonaTalks</p>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: 800, color: "#E8231A", marginBottom: 5, letterSpacing: "-0.02em" }}>Dashboard</h1>
+          <p style={{ fontSize: "0.85rem", color: "#9ca3af" }}>Kelola semua event DonaTalks</p>
         </div>
 
         {/* Stats row */}
@@ -238,11 +239,14 @@ export default function ManagementDashboard() {
             {[
               { label: "Total Event", value: events.length },
               { label: "Task Selesai", value: doneTasks },
-              { label: "Task Belum Selesai", value: pendingTasks },
+              { label: "Belum Selesai", value: pendingTasks },
             ].map((stat) => (
-              <div key={stat.label} className="msc" style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "20px 24px" }}>
-                <div className="msv" style={{ fontSize: "1.8rem", fontWeight: 700, color: "#E8231A", lineHeight: 1 }}>{stat.value}</div>
-                <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)", marginTop: 6 }}>{stat.label}</div>
+              <div key={stat.label} className="msc" style={{ backgroundColor: "#fff", borderRadius: 16, padding: "22px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "rgba(232,35,26,0.07)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#E8231A" }} />
+                </div>
+                <div className="msv" style={{ fontSize: "2rem", fontWeight: 800, color: "#E8231A", lineHeight: 1 }}>{stat.value}</div>
+                <div style={{ fontSize: "0.78rem", color: "#9ca3af", marginTop: 6, fontWeight: 500 }}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -251,8 +255,8 @@ export default function ManagementDashboard() {
         {/* Events header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#E8231A" }}>Event</h2>
-            <p style={{ fontSize: "0.75rem", color: "rgba(232,35,26,0.4)", marginTop: 2 }}>Tahan kartu untuk hapus atau duplikat</p>
+            <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a" }}>Semua Event</h2>
+            <p style={{ fontSize: "0.73rem", color: "#9ca3af", marginTop: 2 }}>Tahan kartu untuk hapus atau duplikat</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -287,6 +291,7 @@ export default function ManagementDashboard() {
               return (
                 <div
                   key={event.id}
+                  className="ev-card"
                   onClick={() => handleCardClick(event)}
                   onMouseDown={() => startPress(event)}
                   onMouseUp={cancelPress}
@@ -297,56 +302,56 @@ export default function ManagementDashboard() {
                   onContextMenu={(e) => { e.preventDefault(); setActionEvent(event); }}
                   style={{
                     backgroundColor: "#fff",
-                    border: `1px solid ${isPressed ? "rgba(232,35,26,0.4)" : "rgba(232,35,26,0.1)"}`,
-                    borderRadius: 10,
-                    padding: "20px",
+                    borderRadius: 16,
+                    padding: "22px",
                     cursor: "pointer",
-                    transition: "box-shadow 0.15s, transform 0.1s, opacity 0.1s",
-                    transform: isPressed ? "scale(0.97)" : "scale(1)",
-                    opacity: isPressed ? 0.85 : 1,
+                    transition: "box-shadow 0.2s, transform 0.15s",
+                    transform: isPressed ? "scale(0.98)" : "scale(1)",
+                    opacity: isPressed ? 0.8 : 1,
                     userSelect: "none",
                     WebkitUserSelect: "none",
+                    boxShadow: isPressed ? "0 1px 4px rgba(0,0,0,0.08)" : "0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)",
                   }}
-                  onMouseEnter={(e) => { if (!isPressed) e.currentTarget.style.boxShadow = "0 4px 16px rgba(232,35,26,0.1)"; }}
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                    <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#E8231A", flex: 1, marginRight: 10 }}>{event.name}</h3>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", flex: 1, marginRight: 10, lineHeight: 1.3 }}>{event.name}</h3>
                     <span style={{ ...statusStyle, fontSize: "0.72rem", fontWeight: 600, padding: "3px 8px", borderRadius: 5, whiteSpace: "nowrap" }}>
                       {STATUS_LABELS[event.status] || event.status}
                     </span>
                   </div>
 
                   {event.theme && (
-                    <p style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.55)", marginBottom: 8, fontStyle: "italic" }}>
+                    <p style={{ fontSize: "0.8rem", color: "#9ca3af", marginBottom: 8 }}>
                       {event.theme}
                     </p>
                   )}
 
-                  <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
                     {event.event_date && (
-                      <span style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.6)" }}>
+                      <span style={{ fontSize: "0.76rem", color: "#9ca3af", display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ fontSize: "0.7rem" }}>📅</span>
                         {new Date(event.event_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                     )}
-                    <span style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.6)", textTransform: "capitalize" }}>
+                    <span style={{ fontSize: "0.72rem", color: "#9ca3af", backgroundColor: "#f3f4f6", padding: "2px 8px", borderRadius: 4, textTransform: "capitalize" }}>
                       {event.format}
                     </span>
                   </div>
 
                   {/* Task progress */}
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "rgba(232,35,26,0.5)", marginBottom: 4 }}>
-                      <span>Tasks</span>
-                      <span>{event.task_stats.done}/{event.task_stats.total} selesai</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.73rem", color: "#9ca3af", marginBottom: 5 }}>
+                      <span>Jobdesk</span>
+                      <span style={{ fontWeight: 600, color: taskPct === 100 ? "#059669" : "#6b7280" }}>{event.task_stats.done}/{event.task_stats.total}</span>
                     </div>
-                    <div style={{ height: 5, backgroundColor: "#e5e7eb", borderRadius: 3 }}>
-                      <div style={{ height: "100%", width: `${taskPct}%`, backgroundColor: "#E8231A", borderRadius: 3, transition: "width 0.3s" }} />
+                    <div style={{ height: 5, backgroundColor: "#f3f4f6", borderRadius: 3 }}>
+                      <div style={{ height: "100%", width: `${taskPct}%`, backgroundColor: taskPct === 100 ? "#059669" : "#E8231A", borderRadius: 3, transition: "width 0.3s" }} />
                     </div>
                   </div>
 
                   {event.target_count && (
-                    <div style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.5)" }}>
-                      Target: <strong style={{ color: "#E8231A" }}>{event.target_count}</strong> peserta
+                    <div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>
+                      Target: <strong style={{ color: "#E8231A", fontWeight: 700 }}>{event.target_count}</strong> peserta
                     </div>
                   )}
                 </div>
