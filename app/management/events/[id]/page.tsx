@@ -106,6 +106,17 @@ const TASK_TEMPLATES: Record<string, { title: string; notes?: string }[]> = {
     { title: "Desain highlight cover IG" },
     { title: "Desain quote card post-event" },
   ],
+  pm: [
+    { title: "Buat timeline & milestone event" },
+    { title: "Koordinasi antar divisi (acara, marketing, design)" },
+    { title: "Meeting kickoff tim" },
+    { title: "Monitoring progress jobdesk per divisi" },
+    { title: "Evaluasi persiapan H-7 event" },
+    { title: "Buat & distribusikan brief divisi" },
+    { title: "Finalisasi rundown & jadwal tim" },
+    { title: "Recap & dokumentasi pasca event" },
+    { title: "Susun laporan akhir event" },
+  ],
 };
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
@@ -158,10 +169,18 @@ const ROLES = [
   { value: "design", label: "Design" },
 ];
 
-const TASK_CATEGORIES = ["acara", "marketing", "design"];
-const CATEGORY_LABELS: Record<string, string> = { acara: "Acara", marketing: "Marketing & PR", design: "Design" };
+const TASK_CATEGORIES = ["acara", "marketing", "design", "pm"];
+const CATEGORY_LABELS: Record<string, string> = { acara: "Acara", marketing: "Marketing & PR", design: "Design", pm: "Project Manager" };
 
 // ── Stars component ────────────────────────────────────────────────────────────
+
+function StarIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill={filled ? "#f59e0b" : "#d1d5db"}>
+      <path d="M9 1.5l2.2 5.2 5.5.5-4 3.6 1.2 5.4L9 13.4l-4.9 2.8 1.2-5.4-4-3.6 5.5-.5z" />
+    </svg>
+  );
+}
 
 function Stars({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
   return (
@@ -171,9 +190,9 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
           key={n}
           type="button"
           onClick={() => onChange?.(n)}
-          style={{ background: "none", border: "none", cursor: onChange ? "pointer" : "default", fontSize: "1.1rem", color: n <= value ? "#f59e0b" : "#d1d5db", padding: 0 }}
+          style={{ background: "none", border: "none", cursor: onChange ? "pointer" : "default", padding: 0, lineHeight: 0 }}
         >
-          ★
+          <StarIcon filled={n <= value} />
         </button>
       ))}
     </div>
@@ -209,7 +228,7 @@ export default function EventDetailPage() {
 
   // Team
   const [showTeamModal, setShowTeamModal] = useState(false);
-  const [teamForm, setTeamForm] = useState({ member_name: "", role: "acara" });
+  const [teamForm, setTeamForm] = useState({ member_name: "", role: "acara", customRole: "" });
   const [savingTeam, setSavingTeam] = useState(false);
 
   // Task modal — create & edit
@@ -316,16 +335,18 @@ export default function EventDetailPage() {
   async function addTeamMember(e: React.FormEvent) {
     e.preventDefault();
     setSavingTeam(true);
+    const finalRole = teamForm.role === "_other" ? teamForm.customRole.trim() : teamForm.role;
+    if (!finalRole) { setSavingTeam(false); return; }
     const res = await fetch("/api/management/event-team", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...teamForm, event_id: id }),
+      body: JSON.stringify({ member_name: teamForm.member_name, role: finalRole, event_id: id }),
     });
     if (res.ok) {
       const newMember = await res.json();
       setEvent((prev) => prev ? { ...prev, team: [...(prev.team || []), newMember] } : null);
     }
-    setTeamForm({ member_name: "", role: "acara" });
+    setTeamForm({ member_name: "", role: "acara", customRole: "" });
     setShowTeamModal(false);
     setSavingTeam(false);
   }
@@ -571,10 +592,19 @@ export default function EventDetailPage() {
     acc[cat] = tasks.filter((t) => t.category === cat);
     return acc;
   }, {});
+  const uncategorizedTasks = tasks.filter((t) => !TASK_CATEGORIES.includes(t.category));
   const teamByRole = ROLES.reduce<Record<string, TeamMember[]>>((acc, r) => {
     acc[r.value] = (event.team || []).filter((m) => m.role === r.value);
     return acc;
   }, {});
+  const knownRoleValues = new Set(ROLES.map((r) => r.value));
+  const customRoleGroups = (event.team || [])
+    .filter((m) => !knownRoleValues.has(m.role))
+    .reduce<Record<string, TeamMember[]>>((acc, m) => {
+      if (!acc[m.role]) acc[m.role] = [];
+      acc[m.role].push(m);
+      return acc;
+    }, {});
 
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const taskPct = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
@@ -585,10 +615,10 @@ export default function EventDetailPage() {
     <div style={{ minHeight: "100vh", backgroundColor: C }}>
       <style>{`
         @media (max-width: 600px) {
-          .edc { padding: 20px 16px 48px !important; }
+          .edc { padding: 16px 14px 48px !important; }
           .etb { overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
           .etb::-webkit-scrollbar { display: none; }
-          .etn { flex-shrink: 0 !important; padding: 10px 12px !important; font-size: 0.8rem !important; }
+          .etn { flex-shrink: 0 !important; padding: 7px 12px !important; font-size: 0.78rem !important; }
           .efg { grid-template-columns: 1fr !important; }
           .emw { align-items: flex-end !important; padding: 0 !important; }
           .emi { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; max-height: 92vh !important; }
@@ -619,32 +649,33 @@ export default function EventDetailPage() {
       <div className="edc" style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px 60px" }}>
 
         {/* Quick stats bar */}
-        <div style={{ display: "flex", gap: 24, marginBottom: 24, flexWrap: "wrap" }}>
-          <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
-            Jobdesk: <strong style={{ color: G }}>{doneTasks}/{tasks.length}</strong> selesai
-            {tasks.length > 0 && <span style={{ marginLeft: 6, color: taskPct === 100 ? "#059669" : "rgba(232,35,26,0.4)" }}>({taskPct}%)</span>}
+        <div style={{ display: "flex", gap: 20, marginBottom: 20, flexWrap: "wrap", backgroundColor: "#fff", borderRadius: 12, padding: "14px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04)", alignItems: "center" }}>
+          <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
+            Jobdesk: <strong style={{ color: G }}>{doneTasks}/{tasks.length}</strong>
+            {tasks.length > 0 && <span style={{ marginLeft: 5, color: taskPct === 100 ? "#059669" : "#9ca3af" }}>({taskPct}%)</span>}
           </div>
           {evaluations.length > 0 && (
-            <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
-              Evaluasi: <strong style={{ color: G }}>{evaluations.length}</strong> responden · rata-rata <strong style={{ color: G }}>{avg(evaluations, "rating_overall")}/5</strong>
+            <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
+              Evaluasi: <strong style={{ color: G }}>{evaluations.length}</strong> responden · <strong style={{ color: G }}>{avg(evaluations, "rating_overall")}/5</strong>
             </div>
           )}
           {event.event_date && (
-            <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)" }}>
+            <div style={{ fontSize: "0.8rem", color: "#9ca3af", marginLeft: "auto" }}>
               {new Date(event.event_date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-              {event.event_time ? `, ${event.event_time.slice(0, 5)} WIB` : ""}
+              {event.event_time ? ` · ${event.event_time.slice(0, 5)} WIB` : ""}
             </div>
           )}
         </div>
 
         {/* Tabs */}
-        <div className="etb" style={{ display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(232,35,26,0.1)" }}>
+        <div className="etb" style={{ display: "flex", gap: 4, marginBottom: 24, backgroundColor: "rgba(232,35,26,0.06)", borderRadius: 12, padding: "4px" }}>
           {(["rancangan", "jobdesk", "evaluasi", "database"] as const).map((t) => (
             <button key={t} className="etn" onClick={() => setTab(t)} style={{
-              padding: "10px 18px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
-              border: "none", backgroundColor: "transparent", flexShrink: 0,
-              color: tab === t ? G : "rgba(232,35,26,0.4)",
-              borderBottom: `2px solid ${tab === t ? G : "transparent"}`,
+              padding: "8px 16px", fontSize: "0.83rem", fontWeight: 600, cursor: "pointer",
+              border: "none", flexShrink: 0, borderRadius: 9, transition: "all 0.15s",
+              backgroundColor: tab === t ? "#fff" : "transparent",
+              color: tab === t ? G : "#9ca3af",
+              boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
               whiteSpace: "nowrap",
             }}>
               {t === "rancangan" ? "Rancangan" : t === "jobdesk" ? `Jobdesk (${tasks.length})` : t === "evaluasi" ? `Evaluasi (${evaluations.length})` : `Database (${links.length})`}
@@ -655,9 +686,9 @@ export default function EventDetailPage() {
         {/* ── RANCANGAN TAB ── */}
         {tab === "rancangan" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: G }}>Detail Event</h2>
+                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a" }}>Detail Event</h2>
                 {!editing ? (
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => setEditing(true)} style={btnS}>Edit</button>
@@ -685,7 +716,7 @@ export default function EventDetailPage() {
                   ].map((item) => (
                     <div key={item.label}>
                       <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</div>
-                      <div style={{ fontSize: "0.88rem", color: G, fontWeight: 500 }}>{item.val}</div>
+                      <div style={{ fontSize: "0.88rem", color: "#1a1a1a", fontWeight: 500 }}>{item.val}</div>
                     </div>
                   ))}
                   {event.theme && (
@@ -767,9 +798,9 @@ export default function EventDetailPage() {
             </div>
 
             {/* Tim card */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: G }}>Tim</h2>
+                <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a" }}>Tim</h2>
                 <button onClick={() => setShowTeamModal(true)} style={btnP}>+ Tambah</button>
               </div>
               {(event.team || []).length === 0 ? (
@@ -791,6 +822,17 @@ export default function EventDetailPage() {
                       </div>
                     );
                   })}
+                  {Object.entries(customRoleGroups).map(([role, members]) => (
+                    <div key={role} style={{ backgroundColor: C, borderRadius: 8, padding: "12px 14px" }}>
+                      <div style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(232,35,26,0.4)", marginBottom: 8 }}>{role}</div>
+                      {members.map((m) => (
+                        <div key={m.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: "0.85rem", color: G, fontWeight: 500 }}>{m.member_name}</span>
+                          <button onClick={() => removeTeamMember(m.id)} style={{ background: "none", border: "none", color: "rgba(232,35,26,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -802,7 +844,7 @@ export default function EventDetailPage() {
           <div>
             {/* Progress */}
             {tasks.length > 0 && (
-              <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "16px 20px", marginBottom: 20 }}>
+              <div style={{ backgroundColor: "#fff", borderRadius: 12, padding: "16px 20px", marginBottom: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "rgba(232,35,26,0.55)", marginBottom: 6 }}>
                   <span>Progress keseluruhan</span>
                   <span>{doneTasks}/{tasks.length} selesai ({taskPct}%)</span>
@@ -826,15 +868,14 @@ export default function EventDetailPage() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                {TASK_CATEGORIES.map((cat) => {
-                  const catTasks = tasksByCategory[cat];
+                {[...TASK_CATEGORIES.map((cat) => ({ key: cat, label: CATEGORY_LABELS[cat], tasks: tasksByCategory[cat] || [] })), ...(uncategorizedTasks.length ? [{ key: "_other", label: "Lainnya", tasks: uncategorizedTasks }] : [])].map(({ key: cat, label: catLabel, tasks: catTasks }) => {
                   if (!catTasks.length) return null;
                   const catDone = catTasks.filter((t) => t.status === "done").length;
                   return (
                     <div key={cat}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                         <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                          {CATEGORY_LABELS[cat]}
+                          {catLabel}
                         </div>
                         <span style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.35)" }}>{catDone}/{catTasks.length}</span>
                       </div>
@@ -845,7 +886,7 @@ export default function EventDetailPage() {
                           return (
                             <div
                               key={task.id}
-                              style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", gap: 10 }}
+                              style={{ backgroundColor: "#fff", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 1px 2px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.04)" }}
                             >
                               {/* Status cycle */}
                               <button
@@ -867,7 +908,7 @@ export default function EventDetailPage() {
 
                               {/* Title + notes */}
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <span style={{ fontSize: "0.87rem", color: G, fontWeight: 500, textDecoration: isDone ? "line-through" : "none", opacity: isDone ? 0.45 : 1 }}>
+                                <span style={{ fontSize: "0.87rem", color: isDone ? "#9ca3af" : "#1a1a1a", fontWeight: 500, textDecoration: isDone ? "line-through" : "none" }}>
                                   {task.title}
                                 </span>
                                 {task.notes && <p style={{ fontSize: "0.73rem", color: "rgba(232,35,26,0.45)", margin: "2px 0 0" }}>{task.notes}</p>}
@@ -895,8 +936,13 @@ export default function EventDetailPage() {
                                 <button
                                   onClick={() => copyTask(task)}
                                   title="Duplikat"
-                                  style={{ background: "none", border: "none", color: "rgba(232,35,26,0.35)", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: "2px 3px" }}
-                                >⧉</button>
+                                  style={{ background: "none", border: "none", color: "rgba(232,35,26,0.35)", cursor: "pointer", lineHeight: 0, padding: "2px 3px" }}
+                                >
+                                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="4.5" y="4.5" width="7.5" height="8" rx="1.2"/>
+                                    <path d="M9.5 4.5V3.5A1.2 1.2 0 008.3 2H3.5A1.2 1.2 0 002.3 3.2v5.5a1.2 1.2 0 001.2 1.2H4.5"/>
+                                  </svg>
+                                </button>
                                 {/* Delete */}
                                 <button
                                   onClick={() => deleteTask(task.id)}
@@ -921,9 +967,9 @@ export default function EventDetailPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* KPI Pencapaian */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: G }}>KPI & Pencapaian</h3>
+                <h3 style={{ fontSize: "0.88rem", fontWeight: 700, color: "#1a1a1a" }}>KPI & Pencapaian</h3>
                 {!editingEvalSection ? (
                   <button onClick={() => { setEvSection({ actual_count: String(event.actual_count ?? ""), eval_good: event.eval_good ?? "", eval_improve: event.eval_improve ?? "", eval_action: event.eval_action ?? "", eval_feedback: event.eval_feedback ?? "" }); setEditingEvalSection(true); }} style={btnS}>Edit</button>
                 ) : (
@@ -954,7 +1000,9 @@ export default function EventDetailPage() {
                       <div style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.4)", marginBottom: 2 }}>Target</div>
                       <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1a1a1a", lineHeight: 1 }}>{event.target_count ?? "—"}</div>
                     </div>
-                    <div style={{ fontSize: "1.5rem", color: "rgba(232,35,26,0.2)", paddingBottom: 4 }}>→</div>
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="rgba(232,35,26,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, alignSelf: "flex-end", marginBottom: 6 }}>
+                      <path d="M4 11h14M11 5l6 6-6 6"/>
+                    </svg>
                     <div>
                       <div style={{ fontSize: "0.7rem", color: "rgba(232,35,26,0.4)", marginBottom: 2 }}>Realisasi</div>
                       <div style={{ fontSize: "2rem", fontWeight: 800, color: G, lineHeight: 1 }}>{event.actual_count ?? "—"}</div>
@@ -1019,15 +1067,15 @@ export default function EventDetailPage() {
             </div>
 
             {/* Catatan Evaluasi Tim */}
-            <div style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: 24 }}>
+            <div style={{ backgroundColor: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)" }}>
               <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 16 }}>Catatan Evaluasi Tim</div>
               {editingEvalSection ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {[
-                    { key: "eval_good" as const, label: "✓ Yang Berjalan Baik", placeholder: "Apa yang sudah berjalan dengan baik?" },
-                    { key: "eval_improve" as const, label: "⚠ Yang Perlu Diperbaiki", placeholder: "Apa yang perlu ditingkatkan?" },
-                    { key: "eval_action" as const, label: "→ Rencana Tindak Lanjut", placeholder: "Action plan untuk event berikutnya..." },
-                    { key: "eval_feedback" as const, label: "💬 Feedback Peserta", placeholder: "Ringkasan feedback dari peserta..." },
+                    { key: "eval_good" as const, label: "Yang Berjalan Baik", placeholder: "Apa yang sudah berjalan dengan baik?" },
+                    { key: "eval_improve" as const, label: "Yang Perlu Diperbaiki", placeholder: "Apa yang perlu ditingkatkan?" },
+                    { key: "eval_action" as const, label: "Rencana Tindak Lanjut", placeholder: "Action plan untuk event berikutnya..." },
+                    { key: "eval_feedback" as const, label: "Feedback Peserta", placeholder: "Ringkasan feedback dari peserta..." },
                   ].map((f) => (
                     <div key={f.key}>
                       <label style={lbl}>{f.label}</label>
@@ -1038,15 +1086,15 @@ export default function EventDetailPage() {
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
                   {[
-                    { key: "eval_good", label: "Yang Berjalan Baik", icon: "✓", color: "#059669", bg: "#f0fdf4" },
-                    { key: "eval_improve", label: "Yang Perlu Diperbaiki", icon: "⚠", color: "#b45309", bg: "#fffbeb" },
-                    { key: "eval_action", label: "Rencana Tindak Lanjut", icon: "→", color: "#1d4ed8", bg: "#eff6ff" },
-                    { key: "eval_feedback", label: "Feedback Peserta", icon: "★", color: "#0f766e", bg: "#f0fdfa" },
+                    { key: "eval_good", label: "Yang Berjalan Baik" },
+                    { key: "eval_improve", label: "Yang Perlu Diperbaiki" },
+                    { key: "eval_action", label: "Rencana Tindak Lanjut" },
+                    { key: "eval_feedback", label: "Feedback Peserta" },
                   ].map((f) => {
                     const val = event[f.key as keyof Event] as string | null;
                     return (
-                      <div key={f.key} style={{ backgroundColor: f.bg, borderRadius: 8, padding: 16 }}>
-                        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: f.color, marginBottom: 8 }}>{f.icon} {f.label}</div>
+                      <div key={f.key} style={{ backgroundColor: C, borderRadius: 8, padding: 16 }}>
+                        <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(232,35,26,0.45)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>{f.label}</div>
                         {val ? (
                           <p style={{ fontSize: "0.83rem", color: "#374151", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{val}</p>
                         ) : (
@@ -1099,7 +1147,7 @@ export default function EventDetailPage() {
                         </h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                           {group.items.map((link) => (
-                            <div key={link.id} style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                            <div key={link.id} style={{ backgroundColor: "#fff", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)" }}>
                               <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: G, flexShrink: 0 }} />
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#1a1a1a", marginBottom: 2 }}>{link.label}</div>
@@ -1144,9 +1192,20 @@ export default function EventDetailPage() {
               </div>
               <div>
                 <label style={lbl}>Role</label>
-                <select value={teamForm.role} onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value })} style={inp}>
+                <select value={teamForm.role} onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value, customRole: "" })} style={inp}>
                   {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+                  <option value="_other">Lainnya (ketik manual)</option>
                 </select>
+                {teamForm.role === "_other" && (
+                  <input
+                    type="text"
+                    value={teamForm.customRole}
+                    onChange={(e) => setTeamForm({ ...teamForm, customRole: e.target.value })}
+                    placeholder="Ketik peran tim..."
+                    style={{ ...inp, marginTop: 8 }}
+                    required
+                  />
+                )}
               </div>
               <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                 <button type="button" onClick={() => setShowTeamModal(false)} style={{ ...btnS, flex: 1 }}>Batal</button>
@@ -1177,6 +1236,7 @@ export default function EventDetailPage() {
                     <option value="acara">Acara</option>
                     <option value="marketing">Marketing</option>
                     <option value="design">Design</option>
+                    <option value="pm">Project Manager</option>
                   </select>
                 </div>
                 <div>

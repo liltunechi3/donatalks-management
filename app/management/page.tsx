@@ -36,6 +36,38 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   done: { bg: "#d1fae5", color: "#065f46" },
 };
 
+function DonutChart({ segments, total }: { segments: { value: number; color: string; label: string }[]; total: number }) {
+  const r = 40;
+  const cx = 60;
+  const cy = 60;
+  const sw = 16;
+  const circumference = 2 * Math.PI * r;
+  const arcs: React.ReactNode[] = [];
+  let cumulative = 0;
+  for (const seg of segments) {
+    if (seg.value === 0) continue;
+    const dashLen = (seg.value / total) * circumference;
+    arcs.push(
+      <circle
+        key={seg.label}
+        cx={cx} cy={cy} r={r}
+        fill="none" stroke={seg.color} strokeWidth={sw}
+        strokeDasharray={`${dashLen} ${circumference}`}
+        strokeDashoffset={-cumulative}
+        transform={`rotate(-90 ${cx} ${cy})`}
+      />
+    );
+    cumulative += dashLen;
+  }
+  return (
+    <svg width="120" height="120" viewBox="0 0 120 120" style={{ flexShrink: 0 }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f3f4f6" strokeWidth={sw} />
+      {total > 0 ? arcs : null}
+      <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="central" fontSize="22" fontWeight="800" fill="#E8231A">{total}</text>
+    </svg>
+  );
+}
+
 function Spinner({ small }: { small?: boolean }) {
   const size = small ? 18 : 28;
   return (
@@ -97,8 +129,9 @@ export default function ManagementDashboard() {
     fetchEvents();
   }, []);
 
-  const pendingTasks = events.reduce((sum, e) => sum + (e.task_stats.total - e.task_stats.done), 0);
-  const doneTasks = events.reduce((sum, e) => sum + e.task_stats.done, 0);
+  const plannedCount = events.filter((e) => e.status === "planned").length;
+  const onProgressCount = events.filter((e) => e.status === "on_progress").length;
+  const doneCount = events.filter((e) => e.status === "done").length;
 
   const startPress = useCallback((event: Event) => {
     didLongPress.current = false;
@@ -199,13 +232,14 @@ export default function ManagementDashboard() {
         @media (max-width: 600px) {
           .mc { padding: 20px 16px 48px !important; }
           .msg { gap: 10px !important; }
-          .msc { padding: 12px 10px !important; }
-          .msv { font-size: 1.3rem !important; }
+          .msc { padding: 14px 14px !important; }
+          .msv { font-size: 1.5rem !important; }
           .meg { grid-template-columns: 1fr !important; }
           .mwrap { align-items: flex-end !important; padding: 0 !important; }
           .mmi { border-radius: 16px 16px 0 0 !important; max-width: 100% !important; padding: 24px 18px !important; }
           .mfg { grid-template-columns: 1fr !important; }
         }
+        .ev-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.11), 0 0 1px rgba(0,0,0,0.05) !important; }
       `}</style>
       {/* Navbar */}
       <header style={{ backgroundColor: "#E8231A", borderBottom: "1px solid rgba(245,240,232,0.08)" }}>
@@ -228,31 +262,46 @@ export default function ManagementDashboard() {
       <div className="mc" style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px 60px" }}>
         {/* Page title */}
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#E8231A", marginBottom: 4 }}>Dashboard</h1>
-          <p style={{ fontSize: "0.85rem", color: "rgba(232,35,26,0.5)" }}>Kelola semua event DonaTalks</p>
+          <h1 style={{ fontSize: "1.9rem", fontWeight: 800, color: "#E8231A", marginBottom: 5, letterSpacing: "-0.02em" }}>Dashboard</h1>
+          <p style={{ fontSize: "0.85rem", color: "#9ca3af" }}>Kelola semua event DonaTalks</p>
         </div>
 
-        {/* Stats row */}
+        {/* Overview card with donut chart */}
         {!loading && !error && (
-          <div className="msg" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }}>
-            {[
-              { label: "Total Event", value: events.length },
-              { label: "Task Selesai", value: doneTasks },
-              { label: "Task Belum Selesai", value: pendingTasks },
-            ].map((stat) => (
-              <div key={stat.label} className="msc" style={{ backgroundColor: "#fff", border: "1px solid rgba(232,35,26,0.1)", borderRadius: 10, padding: "20px 24px" }}>
-                <div className="msv" style={{ fontSize: "1.8rem", fontWeight: 700, color: "#E8231A", lineHeight: 1 }}>{stat.value}</div>
-                <div style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.5)", marginTop: 6 }}>{stat.label}</div>
-              </div>
-            ))}
+          <div style={{ backgroundColor: "#fff", borderRadius: 16, padding: "24px 28px", marginBottom: 32, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)", display: "flex", gap: 28, flexWrap: "wrap", alignItems: "center" }}>
+            <DonutChart
+              total={events.length}
+              segments={[
+                { value: plannedCount, color: "#d1d5db", label: "Planned" },
+                { value: onProgressCount, color: "#fbbf24", label: "On Progress" },
+                { value: doneCount, color: "#34d399", label: "Done" },
+              ]}
+            />
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { label: "Planned", value: plannedCount, dot: "#d1d5db", textColor: "#6b7280" },
+                { label: "On Progress", value: onProgressCount, dot: "#fbbf24", textColor: "#b45309" },
+                { label: "Done", value: doneCount, dot: "#34d399", textColor: "#065f46" },
+              ].map((item) => (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: item.dot, flexShrink: 0 }} />
+                  <span style={{ fontSize: "0.78rem", color: item.textColor, fontWeight: 500, minWidth: 86 }}>{item.label}</span>
+                  <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a1a" }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginLeft: "auto", textAlign: "right" }}>
+              <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "rgba(232,35,26,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Total Event</div>
+              <div style={{ fontSize: "3rem", fontWeight: 800, color: "#E8231A", lineHeight: 1 }}>{events.length}</div>
+            </div>
           </div>
         )}
 
         {/* Events header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#E8231A" }}>Event</h2>
-            <p style={{ fontSize: "0.75rem", color: "rgba(232,35,26,0.4)", marginTop: 2 }}>Tahan kartu untuk hapus atau duplikat</p>
+            <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1a1a1a" }}>Semua Event</h2>
+            <p style={{ fontSize: "0.73rem", color: "#9ca3af", marginTop: 2 }}>Tahan kartu untuk hapus atau duplikat</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -287,6 +336,7 @@ export default function ManagementDashboard() {
               return (
                 <div
                   key={event.id}
+                  className="ev-card"
                   onClick={() => handleCardClick(event)}
                   onMouseDown={() => startPress(event)}
                   onMouseUp={cancelPress}
@@ -297,56 +347,55 @@ export default function ManagementDashboard() {
                   onContextMenu={(e) => { e.preventDefault(); setActionEvent(event); }}
                   style={{
                     backgroundColor: "#fff",
-                    border: `1px solid ${isPressed ? "rgba(232,35,26,0.4)" : "rgba(232,35,26,0.1)"}`,
-                    borderRadius: 10,
-                    padding: "20px",
+                    borderRadius: 16,
+                    padding: "22px",
                     cursor: "pointer",
-                    transition: "box-shadow 0.15s, transform 0.1s, opacity 0.1s",
-                    transform: isPressed ? "scale(0.97)" : "scale(1)",
-                    opacity: isPressed ? 0.85 : 1,
+                    transition: "box-shadow 0.2s, transform 0.15s",
+                    transform: isPressed ? "scale(0.98)" : "scale(1)",
+                    opacity: isPressed ? 0.8 : 1,
                     userSelect: "none",
                     WebkitUserSelect: "none",
+                    boxShadow: isPressed ? "0 1px 4px rgba(0,0,0,0.08)" : "0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04)",
                   }}
-                  onMouseEnter={(e) => { if (!isPressed) e.currentTarget.style.boxShadow = "0 4px 16px rgba(232,35,26,0.1)"; }}
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                    <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#E8231A", flex: 1, marginRight: 10 }}>{event.name}</h3>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "#1a1a1a", flex: 1, marginRight: 10, lineHeight: 1.3 }}>{event.name}</h3>
                     <span style={{ ...statusStyle, fontSize: "0.72rem", fontWeight: 600, padding: "3px 8px", borderRadius: 5, whiteSpace: "nowrap" }}>
                       {STATUS_LABELS[event.status] || event.status}
                     </span>
                   </div>
 
                   {event.theme && (
-                    <p style={{ fontSize: "0.8rem", color: "rgba(232,35,26,0.55)", marginBottom: 8, fontStyle: "italic" }}>
+                    <p style={{ fontSize: "0.8rem", color: "#9ca3af", marginBottom: 8 }}>
                       {event.theme}
                     </p>
                   )}
 
-                  <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
                     {event.event_date && (
-                      <span style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.6)" }}>
+                      <span style={{ fontSize: "0.76rem", color: "#9ca3af" }}>
                         {new Date(event.event_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                     )}
-                    <span style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.6)", textTransform: "capitalize" }}>
+                    <span style={{ fontSize: "0.72rem", color: "#9ca3af", backgroundColor: "#f3f4f6", padding: "2px 8px", borderRadius: 4, textTransform: "capitalize" }}>
                       {event.format}
                     </span>
                   </div>
 
                   {/* Task progress */}
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "rgba(232,35,26,0.5)", marginBottom: 4 }}>
-                      <span>Tasks</span>
-                      <span>{event.task_stats.done}/{event.task_stats.total} selesai</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.73rem", color: "#9ca3af", marginBottom: 5 }}>
+                      <span>Jobdesk</span>
+                      <span style={{ fontWeight: 600, color: taskPct === 100 ? "#059669" : "#6b7280" }}>{event.task_stats.done}/{event.task_stats.total}</span>
                     </div>
-                    <div style={{ height: 5, backgroundColor: "#e5e7eb", borderRadius: 3 }}>
-                      <div style={{ height: "100%", width: `${taskPct}%`, backgroundColor: "#E8231A", borderRadius: 3, transition: "width 0.3s" }} />
+                    <div style={{ height: 5, backgroundColor: "#f3f4f6", borderRadius: 3 }}>
+                      <div style={{ height: "100%", width: `${taskPct}%`, backgroundColor: taskPct === 100 ? "#059669" : "#E8231A", borderRadius: 3, transition: "width 0.3s" }} />
                     </div>
                   </div>
 
                   {event.target_count && (
-                    <div style={{ fontSize: "0.78rem", color: "rgba(232,35,26,0.5)" }}>
-                      Target: <strong style={{ color: "#E8231A" }}>{event.target_count}</strong> peserta
+                    <div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>
+                      Target: <strong style={{ color: "#E8231A", fontWeight: 700 }}>{event.target_count}</strong> peserta
                     </div>
                   )}
                 </div>
@@ -376,7 +425,10 @@ export default function ManagementDashboard() {
                 disabled={duplicating || deleting}
                 style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", backgroundColor: "#F5F0E8", border: "none", borderRadius: 10, cursor: duplicating ? "not-allowed" : "pointer", opacity: duplicating ? 0.6 : 1 }}
               >
-                <span style={{ fontSize: "1.2rem" }}>⧉</span>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#E8231A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <rect x="6" y="6" width="9" height="10" rx="1.5"/>
+                  <path d="M12 6V4.5A1.5 1.5 0 0010.5 3H4.5A1.5 1.5 0 003 4.5v6A1.5 1.5 0 004.5 12H6"/>
+                </svg>
                 <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#E8231A" }}>
                   {duplicating ? "Menduplikat..." : "Duplikat Event"}
                 </span>
@@ -388,7 +440,9 @@ export default function ManagementDashboard() {
                 disabled={duplicating || deleting}
                 style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", backgroundColor: "#fee2e2", border: "none", borderRadius: 10, cursor: deleting ? "not-allowed" : "pointer", opacity: deleting ? 0.6 : 1 }}
               >
-                <span style={{ fontSize: "1.2rem" }}>🗑</span>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#991b1b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M3 4.5h12M7.5 4.5V3h3v1.5M6 4.5l.75 9h4.5l.75-9"/>
+                </svg>
                 <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#991b1b" }}>
                   {deleting ? "Menghapus..." : "Hapus Event"}
                 </span>

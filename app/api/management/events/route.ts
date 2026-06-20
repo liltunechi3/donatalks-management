@@ -37,11 +37,18 @@ export async function GET() {
     if (t.status === "done") taskStats[t.event_id].done++;
   }
 
-  const enriched = (events || []).map((e: { id: string }) => ({
-    ...e,
-    participant_count: participantCounts[e.id] || 0,
-    task_stats: taskStats[e.id] || { total: 0, done: 0 },
-  }));
+  const enriched = (events || [])
+    .map((e: { id: string }) => ({
+      ...e,
+      participant_count: participantCounts[e.id] || 0,
+      task_stats: taskStats[e.id] || { total: 0, done: 0 },
+    }))
+    .sort((a: { status: string; created_at: string }, b: { status: string; created_at: string }) => {
+      const aDone = a.status === "done" ? 1 : 0;
+      const bDone = b.status === "done" ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   return NextResponse.json(enriched);
 }
