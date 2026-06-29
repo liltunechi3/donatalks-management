@@ -46,12 +46,9 @@ export async function GET() {
       task_stats: taskStats[e.id] || { total: 0, done: 0 },
     }))
     .sort((a, b) => {
-      const aDone = a.status === "done" ? 1 : 0;
-      const bDone = b.status === "done" ? 1 : 0;
-      if (aDone !== bDone) return aDone - bDone;
-      const aDate = a.event_date ? new Date(a.event_date).getTime() : Infinity;
-      const bDate = b.event_date ? new Date(b.event_date).getTime() : Infinity;
-      return aDate - bDate;
+      const aDate = a.event_date ? new Date(a.event_date).getTime() : -Infinity;
+      const bDate = b.event_date ? new Date(b.event_date).getTime() : -Infinity;
+      return bDate - aDate;
     });
 
   return NextResponse.json(enriched);
