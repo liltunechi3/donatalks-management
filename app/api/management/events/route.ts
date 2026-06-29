@@ -38,7 +38,7 @@ export async function GET() {
   }
 
   const enriched = (events || [])
-    .map((e: { id: string; status: string; created_at: string }) => ({
+    .map((e: { id: string; status: string; created_at: string; event_date: string | null }) => ({
       ...e,
       participant_count: participantCounts[e.id] || 0,
       task_stats: taskStats[e.id] || { total: 0, done: 0 },
@@ -47,7 +47,9 @@ export async function GET() {
       const aDone = a.status === "done" ? 1 : 0;
       const bDone = b.status === "done" ? 1 : 0;
       if (aDone !== bDone) return aDone - bDone;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      const aDate = a.event_date ? new Date(a.event_date).getTime() : Infinity;
+      const bDate = b.event_date ? new Date(b.event_date).getTime() : Infinity;
+      return aDate - bDate;
     });
 
   return NextResponse.json(enriched);
